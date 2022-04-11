@@ -128,6 +128,10 @@ int main(int argc, char* argv[]) {
                     mainFractalImage.renderingStatus = NeedUpdate;
                 }
 
+                if (ImGui::Button("Refresh")) {
+                    mainFractalImage.renderingStatus = NeedUpdate;
+                    fractalSprite.setOrigin((sf::Vector2f)fractalSprite.getTextureRect().getSize() / 2.0f);
+                }
 
                 if (ImGui::CollapsingHeader("Iteration flags")) {
                     static bool disableTests = false;
@@ -202,7 +206,7 @@ int main(int argc, char* argv[]) {
                     ImGui::Text("Image resolution");
                     ImGui::DragInt("##renderwidth", &renderingFractalImage.width, 1, 0, 38400);
                     ImGui::SameLine();
-                    ImGui::Text(" x ##renderresolutiontext");
+                    ImGui::Text(" x ");
                     ImGui::SameLine();
                     ImGui::DragInt("##renderheight", &renderingFractalImage.height, 1, 0, 21600);
 
@@ -383,12 +387,12 @@ int main(int argc, char* argv[]) {
 
                 }
 
-                if (ImGui::Button("Generate dataset")) {
+                /*if (ImGui::Button("Generate dataset")) {
                     generateDataset(100000000);
                 }
                 if (ImGui::Button("Print dataset")) {
                     printDataset(100);
-                }
+                }*/
 
                 ImGui::EndTabItem();
             }
