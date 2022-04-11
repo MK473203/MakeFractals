@@ -16,4 +16,4 @@ palette-list.txt
 imgui.ini
 
 # dlls
-.dll
+*.dll
