@@ -4,8 +4,8 @@ An application for exploring and generating images of fractals
 
 ## Hotkeys
 
-|||
+|Hotkey|Function|
 |---|---|
-| W A S D | Moving around |
-| * and / | Zooming in/out |
-| + and - | Changing iteration limit|
+|W A S D|Moving around|
+|* and /|Zooming in/out|
+|+ and -|Changing iteration limit|
