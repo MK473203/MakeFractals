@@ -174,18 +174,16 @@
     <ClCompile Include="..\imgui-docking\imgui_tables.cpp" />
     <ClCompile Include="..\imgui-docking\imgui_widgets.cpp" />
     <ClCompile Include="..\imgui-sfml\imgui-SFML.cpp" />
-    <ClCompile Include="FractalRemake.cpp">
-      <DeploymentContent>false</DeploymentContent>
-    </ClCompile>
-    <ClCompile Include="Fractal_Draw.cpp" />
-    <ClCompile Include="Fractal_Maths.cpp" />
-    <ClCompile Include="Fractal_Utils.cpp" />
+    <ClCompile Include="src\FractalRemake.cpp" />
+    <ClCompile Include="src\Fractal_Draw.cpp" />
+    <ClCompile Include="src\Fractal_Maths.cpp" />
+    <ClCompile Include="src\Fractal_Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FractalRemake.h" />
-    <ClInclude Include="Fractal_Draw.h" />
-    <ClInclude Include="Fractal_Maths.h" />
-    <ClInclude Include="Fractal_Utils.h" />
+    <ClInclude Include="src\FractalRemake.h" />
+    <ClInclude Include="src\Fractal_Draw.h" />
+    <ClInclude Include="src\Fractal_Maths.h" />
+    <ClInclude Include="src\Fractal_Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
