@@ -44,7 +44,12 @@ int main(int argc, char* argv[]) {
     sf::Keyboard keyboard;
     bool isAnyKeyPressed = false;
     int SampleDistanceOrMultisampling = 1;
+
     int currentPaletteIndex = 0;
+    int paletteComboIndex = 0;
+    bool displayPaletteEditor = false;
+    char* paletteNameBuffer = FractalImage::currentPalette.name.data();
+
     float colorOffsetFloat = 0.0f;
     int temp = 1;
 
@@ -300,18 +305,17 @@ int main(int argc, char* argv[]) {
                 ImGui::Text("Iter div");
 
 
-                static int paletteComboIndex = 0;
-                const char* combo_preview_value = FractalImage::paletteColorList[paletteComboIndex].name.c_str();
+                const char* combo_preview_value = FractalImage::paletteList[paletteComboIndex].name.c_str();
                 ImGui::PushItemWidth(100);
                 if (ImGui::BeginCombo("##palettepickercombo", combo_preview_value, 0))
                 {
-                    for (int n = 0; n < FractalImage::paletteColorList.size(); n++)
+                    for (int n = 0; n < FractalImage::paletteList.size(); n++)
                     {
                         const bool is_selected = (paletteComboIndex == n);
-                        if (ImGui::Selectable(FractalImage::paletteColorList[n].name.c_str(), is_selected)) {
+                        if (ImGui::Selectable(FractalImage::paletteList[n].name.c_str(), is_selected)) {
                             paletteComboIndex = n;
 
-                            FractalImage::currentPalette = FractalImage::paletteColorList[paletteComboIndex];
+                            FractalImage::currentPalette = FractalImage::paletteList[paletteComboIndex];
                             currentPaletteIndex = paletteComboIndex;
 
                             mainFractalImage.generatePalette();
@@ -330,6 +334,7 @@ int main(int argc, char* argv[]) {
                 ImGui::SameLine();
 
                 if (ImGui::Button("Edit##editpalette")) {
+                    displayPaletteEditor = !displayPaletteEditor;
                 }
 
                 ImGui::SameLine(); ImGui::Text("Color palette");
@@ -379,7 +384,7 @@ int main(int argc, char* argv[]) {
 
                     ifs.close();
 
-                    FractalImage::currentPalette = FractalImage::paletteColorList[currentPaletteIndex];
+                    FractalImage::currentPalette = FractalImage::paletteList[currentPaletteIndex];
 
                     mainFractalImage.generatePalette();
 
@@ -490,11 +495,97 @@ int main(int argc, char* argv[]) {
 
 #pragma endregion
 
+#pragma region Palette_Editor_Window
+
+        if (displayPaletteEditor) {
+            ImGui::Begin("PaletteEditor", 0, 0 | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+
+            if (ImGui::InputText("##palettenameeditor", paletteNameBuffer, ImGuiInputTextFlags_AutoSelectAll)) {
+                FractalImage::currentPalette.name = paletteNameBuffer;
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::BeginCombo("##palettepickercombo", "", ImGuiComboFlags_NoPreview))
+            {
+                for (int n = 0; n < FractalImage::paletteList.size(); n++)
+                {
+                    const bool is_selected = (paletteComboIndex == n);
+                    if (ImGui::Selectable(FractalImage::paletteList[n].name.c_str(), is_selected)) {
+                        paletteComboIndex = n;
+
+                        FractalImage::currentPalette = FractalImage::paletteList[paletteComboIndex];
+                        currentPaletteIndex = paletteComboIndex;
+
+                        mainFractalImage.generatePalette();
+
+                        mainFractalImage.refreshVisuals();
+
+                        paletteNameBuffer = FractalImage::currentPalette.name.data();
+                    }
+
+
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+
+            ImVec2 btn_size = ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
+            if (ImGui::Button("-", btn_size) && FractalImage::currentPalette.paletteColors.size() > 1) {
+                FractalImage::currentPalette.paletteColors.erase(FractalImage::currentPalette.paletteColors.end() - 1);
+                mainFractalImage.generatePalette();
+                mainFractalImage.refreshVisuals();
+            }
+
+            for (int i = 0; i < mainFractalImage.currentPalette.paletteColors.size(); i++)
+            {
+                ImGui::SameLine();
+
+                char temp[24];
+                sprintf_s(temp, "color##palettecolor%d", i);
+                if(sfColorEdit3(temp, &mainFractalImage.currentPalette.paletteColors[i], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_InputRGB)) {
+                mainFractalImage.generatePalette();
+                mainFractalImage.refreshVisuals();
+                }
+            }
+
+            ImGui::SameLine();
+            if (ImGui::Button("+", btn_size)) {
+                FractalImage::currentPalette.paletteColors.push_back(sf::Color());
+                mainFractalImage.generatePalette();
+                mainFractalImage.refreshVisuals();
+            }
+
+            if (ImGui::Button("Save")) {
+                FractalImage::paletteList[paletteComboIndex] = FractalImage::currentPalette;
+                displayPaletteEditor = false;
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Cancel")) {
+                FractalImage::currentPalette = FractalImage::paletteList[paletteComboIndex];
+                currentPaletteIndex = paletteComboIndex;
+
+                mainFractalImage.generatePalette();
+
+                mainFractalImage.refreshVisuals();
+
+                paletteNameBuffer = FractalImage::currentPalette.name.data();
+                displayPaletteEditor = false;
+            }
+
+            ImGui::End();
+        }
+
+#pragma endregion
+
 #pragma endregion
 
 #pragma region Input_Stuff
 
-        if (window.hasFocus() && !ImGui::IsPopupOpen("Render", ImGuiPopupFlags_AnyPopup)) {
+        if (window.hasFocus() && !ImGui::IsPopupOpen("Render", ImGuiPopupFlags_AnyPopup) && !displayPaletteEditor) {
 
 #pragma region WASD
 
