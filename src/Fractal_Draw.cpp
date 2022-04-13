@@ -20,7 +20,7 @@ std::vector<sf::Color>{
 The sacred default colors. Guard them well.
 */
 
-std::vector<colorPalette> FractalImage::paletteColorList{
+std::vector<colorPalette> FractalImage::paletteList{
 	{"Default",
 	std::vector<sf::Color>{
 		sf::Color(0, 7, 100),
@@ -57,7 +57,7 @@ std::vector<colorPalette> FractalImage::paletteColorList{
 	}}
 };
 
-colorPalette FractalImage::currentPalette = FractalImage::paletteColorList[0];
+colorPalette FractalImage::currentPalette = FractalImage::paletteList[0];
 
 
 
@@ -388,16 +388,16 @@ std::string FractalImage::debugInfo() {
 void FractalImage::savePaletteList() {
 	std::ofstream ofs("palette-list.txt");
 
-	if (paletteColorList.size() == 0) {
+	if (paletteList.size() == 0) {
 		ofs << "White\n";
 		ofs << 4294967295 << '\n';
 		ofs << 0 << '\n';
 		ofs << -1;
 	}
 
-	for (int i = 0; i < paletteColorList.size(); i++)
+	for (int i = 0; i < paletteList.size(); i++)
 	{
-		colorPalette temp = paletteColorList[i];
+		colorPalette temp = paletteList[i];
 
 		ofs << temp.name << '\n';
 
@@ -415,7 +415,7 @@ void FractalImage::savePaletteList() {
 
 void FractalImage::loadPaletteList() {
 
-	paletteColorList.clear();
+	paletteList.clear();
 
 	std::ifstream ifs("palette-list.txt");
 
@@ -443,7 +443,7 @@ void FractalImage::loadPaletteList() {
 
 		}
 
-		paletteColorList.push_back(tempPalette);
+		paletteList.push_back(tempPalette);
 	}
 
 	ifs.close();

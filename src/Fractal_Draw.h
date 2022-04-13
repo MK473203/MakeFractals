@@ -30,7 +30,7 @@ public:
 
 	static fractalAlgorithmFunction currentAlgorithm;
 
-	static std::vector<colorPalette> paletteColorList;
+	static std::vector<colorPalette> paletteList;
 
 	static sf::Color setColor;
 	static sf::Color debugColor;
