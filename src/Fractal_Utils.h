@@ -22,7 +22,7 @@ enum Fractals
 };
 
 enum iterationResult { MaxIter = 0, CircleTest, LoopTest, DerTest, Undefined, NotInside };
-enum renderStatus { Ready = 0, NeedUpdate, Rendering, Empty, ImageSaved };
+enum renderStatus { Ready = 0, NeedUpdate, Rendering, Empty, ImageSaved, VideoSaved };
 
 struct fractalData {
 	int iterations = 0;
