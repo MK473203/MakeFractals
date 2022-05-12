@@ -59,14 +59,13 @@ std::vector<colorPalette> FractalImage::paletteList{
 
 colorPalette FractalImage::currentPalette = FractalImage::paletteList[0];
 
-
+std::vector<std::thread> FractalImage::threadPool;
+std::atomic_bool FractalImage::interruptThreads = false;
 
 sf::Color FractalImage::setColor = sf::Color();
 sf::Color FractalImage::debugColor = sf::Color(255, 255, 0);
 
 std::vector<sf::Color> FractalImage::palette;
-
-std::vector<std::thread> FractalImage::threadPool;
 
 inline sf::Color Lerp(sf::Color c1, sf::Color c2, float t) {
 	return sf::Color(
@@ -76,7 +75,7 @@ inline sf::Color Lerp(sf::Color c1, sf::Color c2, float t) {
 	);
 }
 
-void drawThreadTask(int threadIndex, FractalImage& fi) {
+void drawThreadTask(FractalImage& fi, int threadIndex) {
 
 
 	for (int i = threadIndex * 4; i < fi.scaledWidth * fi.scaledHeight * 4; i += fi.threadAmount * 4) {
@@ -103,7 +102,7 @@ void drawThreadTask(int threadIndex, FractalImage& fi) {
 
 		if (fi.sampleDistance >= -1) {
 			fi.dataArray[i / 4] = FractalAlgorithms::FractalAlgorithm(fi.currentAlgorithm, x, y, fi.scaledWidth, fi.scaledHeight, fi.iterationMax, fi.centerX, fi.centerY, fi.scale, fi.aspectRatio, fi.flags);
-			c = fi.MapIterations(fi.dataArray[i / 4]);
+			c = fi.mapFractalData(fi.dataArray[i / 4]);
 		}
 		else {
 			unsigned int r = 0;
@@ -116,7 +115,7 @@ void drawThreadTask(int threadIndex, FractalImage& fi) {
 
 			fi.dataArray[dataArrayIndex] = FractalAlgorithms::FractalAlgorithm(fi.currentAlgorithm, x * superSampling, y * superSampling, fi.scaledWidth * superSampling, fi.scaledHeight * superSampling, fi.iterationMax, fi.centerX, fi.centerY, fi.scale, fi.aspectRatio, fi.flags);
 
-			sf::Color z = fi.MapIterations(fi.dataArray[dataArrayIndex]);
+			sf::Color z = fi.mapFractalData(fi.dataArray[dataArrayIndex]);
 
 			r += z.r;
 			g += z.g;
@@ -142,7 +141,7 @@ void drawThreadTask(int threadIndex, FractalImage& fi) {
 						isInside = true;
 					}
 
-					z = fi.MapIterations(fi.dataArray[dataArrayIndex]);
+					z = fi.mapFractalData(fi.dataArray[dataArrayIndex]);
 
 					r += z.r;
 					g += z.g;
@@ -195,7 +194,7 @@ void FractalImage::generatePalette() {
 
 }
 
-sf::Color FractalImage::MapIterations(fractalData data) {
+sf::Color FractalImage::mapFractalData(fractalData data) {
 	if (data.iterResult < NotInside && !debugColors) {
 		return setColor;
 	}
@@ -260,14 +259,11 @@ void FractalImage::updatePixels() {
 	}
 	pixelArray.resize(scaledWidth * scaledHeight * 4);
 
-	threadPool.clear();
-	threadPool.resize(threadAmount);
-
 	renderClock.restart();
 
 	for (int i = 0; i < threadAmount; i++)
 	{
-		threadPool[i] = std::thread(drawThreadTask, i, std::ref(*this));
+		threadPool.push_back(std::thread(drawThreadTask, std::ref(*this), i));
 	}
 
 }
@@ -285,7 +281,7 @@ void FractalImage::refreshVisuals() {
 
 				if (sampleDistance >= -1) {
 
-					c = MapIterations(dataArray[i / 4]);
+					c = mapFractalData(dataArray[i / 4]);
 
 				}
 				else {
@@ -299,7 +295,7 @@ void FractalImage::refreshVisuals() {
 					{
 						int dataArrayIndex = i / 4 * superSampling * superSampling + j;
 
-						sf::Color z = MapIterations(dataArray[dataArrayIndex]);
+						sf::Color z = mapFractalData(dataArray[dataArrayIndex]);
 
 						r += z.r;
 						g += z.g;
@@ -340,13 +336,19 @@ void FractalImage::cancelUpdate() {
 
 	interruptThreads = true;
 
-	for (int i = 0; i < threadPool.size(); i++)
+	for (auto iter = threadPool.begin(); iter != threadPool.end(); iter++)
 	{
-		if (threadPool[i].joinable()) {
-			threadPool[i].join();
-			threadPool[i].~thread();
+		try
+		{
+			iter->join();
+		}
+		catch (const std::exception& e)
+		{
+			std::cout << e.what() << std::endl;
 		}
 	}
+
+	threadPool.clear();
 
 	interruptThreads = false;
 
@@ -449,10 +451,10 @@ void FractalImage::loadPaletteList() {
 	ifs.close();
 }
 
-void FractalImage::saveToImage() {
+void FractalImage::saveToImage(const char* relativePath) {
 	int nameindex = 0;
 
-	std::filesystem::path filePath = std::filesystem::current_path() / "images/";
+	std::filesystem::path filePath = std::filesystem::current_path() / relativePath;
 	filePath.replace_filename(std::to_string(nameindex));
 
 	if (!std::filesystem::exists(filePath.parent_path())) {
@@ -479,5 +481,50 @@ void FractalImage::saveToImage() {
 	if (image.saveToFile(filePath)) {
 		renderingStatus = ImageSaved;
 	}
+
+}
+
+void FractalImage::generateZoomVideo(int& keyFrameCounter, double finalScale) {
+
+	generateKeyframes(keyFrameCounter, finalScale);
+
+	cropFramesFromKeyframes();
+
+	// Code to compile a video from the frames here
+
+	renderingStatus = VideoSaved;
+
+}
+
+void FractalImage::generateKeyframes(int& keyFrameCounter, double finalScale) {
+
+	float zoomIncrement = 0.5;
+
+	double tempScale = scale;
+
+	int keyFrameAmount = floor(log(tempScale / finalScale) / log(zoomIncrement));
+
+	scale /= zoomIncrement;
+
+	std::filesystem::path filePath = std::filesystem::current_path() / "images/zoomframes/";
+
+	if (!std::filesystem::exists(filePath)) {
+		std::filesystem::create_directory(filePath);
+	}
+
+	while (scale < finalScale) {
+		saveToImage("images/zoomframes/");
+
+		renderingStatus = Empty;
+
+		keyFrameCounter++;
+
+		scale /= zoomIncrement;
+	}
+
+
+}
+
+void FractalImage::cropFramesFromKeyframes() {
 
 }

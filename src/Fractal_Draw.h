@@ -38,6 +38,7 @@ public:
 	static std::vector<sf::Color> palette;
 
 	static std::vector<std::thread> threadPool;
+	static std::atomic_bool interruptThreads;
 
 	FractalImage(int width = 1920, int height = 1080) :
 		width(width),
@@ -110,20 +111,21 @@ public:
 	sf::Clock renderClock;
 	int lastRenderTime;
 
-	bool interruptThreads = false;
 
 	int sampleDistance;
 	float aspectRatio;
 
 	void updatePixels();
 
-	void cancelUpdate();
+	static void cancelUpdate();
 
-	void saveToImage();
+	void saveToImage(const char* relativePath);
+
+	void generateZoomVideo(int& keyFrameCounter, double finalScale = 3.0);
 
 	void generatePalette();
 
-	sf::Color MapIterations(fractalData data);
+	sf::Color mapFractalData(fractalData data);
 
 	void refreshVisuals();
 
@@ -158,12 +160,15 @@ public:
 
 private:
 
+	void generateKeyframes(int& keyFrameCounter, double finalScale);
+
+	void cropFramesFromKeyframes();
 
 };
 
 
 sf::Color Lerp(sf::Color c1, sf::Color c2, float t);
 
-void drawThreadTask(int threadIndex, FractalImage& fi);
+void drawThreadTask(FractalImage& fi, int threadIndex);
 
 #endif // !FDRAW
