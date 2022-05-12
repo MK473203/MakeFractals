@@ -17,5 +17,9 @@
 #include <chrono>
 #include <iostream>
 #include <filesystem>
+#include <Windows.h>
+#include <stdio.h>
+#include <io.h>
+#include <fcntl.h>
 
 #endif // !FREMAKE

@@ -13,7 +13,60 @@ static void HelpMarker(const char* desc)
     }
 }
 
+void handleConsoleParams(int argc, char* argv[]) {
+
+    AllocConsole();
+
+    FILE* fDummy;
+    freopen_s(&fDummy, "CONOUT$", "w", stdout);
+    freopen_s(&fDummy, "CONIN$", "r", stdin);
+    std::cout.clear();
+    std::cin.clear();
+
+    std::string arg1 = std::string(argv[1]);
+
+    if (arg1 == "-h" || arg1 == "--help" || arg1 == "help") {
+        // TODO : Print help text
+        std::cout << "insert help text here" << std::endl;
+
+    } else if (arg1 == "-p" || arg1 == "--point" || arg1 == "point") {
+        try
+        {
+            double x = std::stod(argv[2]);
+            double y = std::stod(argv[3]);
+
+            fractalData data = FractalAlgorithms::Mandelbrot(x, y, 1000000, 0);
+
+            if (data.iterResult == NotInside) {
+                std::cout << "Point is not inside the Mandelbrot set, escaping at " << data.iterations << " iterations." << std::endl;
+            }
+            else {
+                std::cout << "Point is inside the Mandelbrot set at " << data.iterations << " iterations." << std::endl;
+            }
+
+        }
+        catch (const std::exception& e)
+        {
+            std::cout << e.what();
+        }
+
+    }
+
+    std::cout << "Press ENTER to exit...";
+    std::cin.get();
+
+}
+
 int main(int argc, char* argv[]) {
+
+    if (argc > 1) {
+
+        handleConsoleParams(argc, argv);
+
+        return 0;
+
+    }
+
     sf::RenderWindow window(sf::VideoMode(1280, 960), "Fractal Remake");
     ImGui::SFML::Init(window);
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -43,7 +96,7 @@ int main(int argc, char* argv[]) {
     sf::Mouse mouse;
     sf::Keyboard keyboard;
     bool isAnyKeyPressed = false;
-    int SampleDistanceOrMultisampling = 1;
+    int SampleDistanceOrMultisampling = -1;
 
     int currentPaletteIndex = 0;
     int paletteComboIndex = 0;
@@ -56,6 +109,8 @@ int main(int argc, char* argv[]) {
     int renderWidth = 1920;
     int renderHeight = 1080;
     int renderms = 1;
+    int keyFrameCounter = 1;
+    double startingScale;
 
 
     sf::Clock deltaClock;
@@ -67,12 +122,6 @@ int main(int argc, char* argv[]) {
     for (std::map<const char*, fractalAlgorithmFunction>::iterator it = FractalAlgorithms::fractalAlgorithms.begin(); it != FractalAlgorithms::fractalAlgorithms.end(); it++)
     {
         algorithmComboItems.push_back(it->first);
-    }
-
-
-    for (int i = 0; i < argc; i++)
-    {
-        std::cout << argv[i] << std::endl;
     }
 
     while (window.isOpen()) {
@@ -120,6 +169,7 @@ int main(int argc, char* argv[]) {
 
         if (ImGui::BeginTabBar("MainTabBar", 0)) {
 
+            // ALGORITHM TAB
             if (ImGui::BeginTabItem("Algorithm")) {
 
                 if (ImGui::InputInt("Iterations", &mainFractalImage.iterationMax, pow(10, floor(log10(mainFractalImage.iterationMax)) - 1), 0, 0 | ImGuiInputTextFlags_CharsDecimal)) {
@@ -161,6 +211,7 @@ int main(int argc, char* argv[]) {
 
             }
 
+            // RENDERING TAB
             if (ImGui::BeginTabItem("Rendering")) {
 
 
@@ -189,12 +240,14 @@ int main(int argc, char* argv[]) {
                 }
 
                 if (ImGui::Button("Quick render")) {
-                    mainFractalImage.saveToImage();
+                    mainFractalImage.saveToImage("images/");
                     mainFractalImage.renderingStatus = Ready;
                 }
                 ImGui::SameLine();
                 if (ImGui::Button("Advanced")) {
                     renderingFractalImage = FractalImage(mainFractalImage);
+                    keyFrameCounter = 1;
+                    startingScale = renderingFractalImage.scale;
                     ImGui::OpenPopup("Render");
                 }
 
@@ -207,38 +260,116 @@ int main(int argc, char* argv[]) {
 
                 if (ImGui::BeginPopupModal("Render", 0, ImGuiWindowFlags_AlwaysAutoResize))
                 {
+                    if (renderingFractalImage.renderingStatus != Ready && renderingFractalImage.renderingStatus != Empty) {
+                        ImGui::BeginDisabled(true);
+                    }
 
+                    ImGui::BeginGroup();
                     ImGui::Text("Image resolution");
+
+                    static int resolutionComboIndex = 0;
+                    if (ImGui::Combo("Presets", &resolutionComboIndex, "480p\000720p\0001080p\0001440p\0004k\0008k\000\000")) {
+                        switch (resolutionComboIndex)
+                        {
+                        case 0:
+                            renderingFractalImage.width = 640;
+                            renderingFractalImage.height = 480;
+                            break;
+                        case 1:
+                            renderingFractalImage.width = 1280;
+                            renderingFractalImage.height = 720;
+                            break;
+                        case 2:
+                            renderingFractalImage.width = 1920;
+                            renderingFractalImage.height = 1080;
+                            break;
+                        case 3:
+                            renderingFractalImage.width = 2560;
+                            renderingFractalImage.height = 1440;
+                            break;
+                        case 4:
+                            renderingFractalImage.width = 3840;
+                            renderingFractalImage.height = 2160;
+                            break;
+                        case 5:
+                            renderingFractalImage.width = 7680;
+                            renderingFractalImage.height = 4320;
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+
                     ImGui::DragInt("##renderwidth", &renderingFractalImage.width, 1, 0, 38400);
                     ImGui::SameLine();
                     ImGui::Text(" x ");
                     ImGui::SameLine();
                     ImGui::DragInt("##renderheight", &renderingFractalImage.height, 1, 0, 21600);
+                    ImGui::EndGroup();
 
                     ImGui::DragInt("Multisampling", &renderms, 0.1f, 1, 4);
 
+                    static int renderType = 0;
+                    ImGui::RadioButton("Image", &renderType, 0);
+                    ImGui::SameLine();
+                    ImGui::RadioButton("Video", &renderType, 1);
+
+                    if (renderType != 0) {
+                        // Different video settings here
+                    }
+
+
+                    int keyFrameAmount = floor(log(startingScale / 3.0) / log(0.5));
+
                     if (ImGui::Button("Render")) {
                         renderingFractalImage.sampleDistance = -renderms;
-                        std::thread t([&renderingFractalImage] {
-                            renderingFractalImage.saveToImage();
-                            });
-                        t.detach();
+
+                        if (renderType != 0) {
+
+                            std::thread t([&renderingFractalImage, &keyFrameCounter] {
+                                renderingFractalImage.generateZoomVideo(keyFrameCounter);
+                                });
+                            t.detach();
+
+                        }
+                        else {
+                            std::thread t([&renderingFractalImage] {
+                                renderingFractalImage.saveToImage("images/");
+                                });
+                            t.detach();
+                        }
                     }
+
+
+                    if (renderingFractalImage.renderingStatus != Ready && renderingFractalImage.renderingStatus != Empty) {
+                        ImGui::EndDisabled();
+                    }
+
                     ImGui::SameLine();
                     if (ImGui::Button("Cancel")) {
                         renderingFractalImage.cancelUpdate();
                         renderingFractalImage.pixelArray.clear();
                         renderingFractalImage.dataArray.clear();
+                        keyFrameCounter = 1;
                         ImGui::CloseCurrentPopup();
                     }
 
                     if (renderingFractalImage.renderingStatus == Rendering) {
-                        ImGui::ProgressBar(renderingFractalImage.renderProgress);
+                        if (renderType != 0) {
+                            char buf[32];
+                            sprintf_s(buf, "keyframe %d/%d: %.0f%%", keyFrameCounter, keyFrameAmount, renderingFractalImage.renderProgress * 100 + 0.01f);
+                            ImGui::ProgressBar(renderingFractalImage.renderProgress, ImVec2(-FLT_MIN, 0), buf);
+                        }
+                        else {
+                            ImGui::ProgressBar(renderingFractalImage.renderProgress);
+                        }
+
                     }
-                    else if (renderingFractalImage.renderingStatus == Ready) {
+                    else if (renderingFractalImage.renderingStatus == Ready && renderType == 0) {
                         ImGui::Text("Saving image to file...");
                     }
-                    else if (renderingFractalImage.renderingStatus == ImageSaved) {
+                    else if ((  renderingFractalImage.renderingStatus == ImageSaved && renderType == 0) || 
+                                renderingFractalImage.renderingStatus == VideoSaved) {
                         renderingFractalImage.pixelArray.clear();
                         renderingFractalImage.dataArray.clear();
                         ImGui::CloseCurrentPopup();
@@ -247,12 +378,15 @@ int main(int argc, char* argv[]) {
                     ImGui::EndPopup();
                 }
 
-                ImGui::InputInt("Threads", &mainFractalImage.threadAmount, 1, 1, 0 | ImGuiInputTextFlags_CharsDecimal);
+                if (ImGui::InputInt("Threads", &mainFractalImage.threadAmount, 1, 1, 0 | ImGuiInputTextFlags_CharsDecimal)) {
+                    mainFractalImage.threadAmount = std::clamp(mainFractalImage.threadAmount, 1, (int)std::thread::hardware_concurrency());
+                }
 
 
                 ImGui::EndTabItem();
             }
 
+            // VISUALS TAB
             if (ImGui::BeginTabItem("Visuals")) {
 
                 if (ImGui::Checkbox("##shadowcheckbox", &FractalImage::shadowFx)) {
@@ -339,14 +473,6 @@ int main(int argc, char* argv[]) {
 
                 ImGui::SameLine(); ImGui::Text("Color palette");
 
-                if (sfColorEdit3("color", &mainFractalImage.currentPalette.paletteColors[0], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_InputRGB)) {
-
-                    mainFractalImage.generatePalette();
-
-                    mainFractalImage.refreshVisuals();
-                }
-
-
                 if (ImGui::DragFloat("Color offset", &colorOffsetFloat, 0.005f, 0.0f, 1.0f, "%.3f", 0 | ImGuiSliderFlags_AlwaysClamp)) {
 
                     mainFractalImage.ColorOffset = mainFractalImage.ColorAmount * colorOffsetFloat;
@@ -357,6 +483,7 @@ int main(int argc, char* argv[]) {
                 ImGui::EndTabItem();
             }
 
+            // MISC TAB
             if (ImGui::BeginTabItem("Misc")) {
 
                 if (ImGui::Button("Save", ImVec2(80, 25))) {
@@ -401,6 +528,7 @@ int main(int argc, char* argv[]) {
 
                 ImGui::EndTabItem();
             }
+
             ImGui::EndTabBar();
         }
 
@@ -482,7 +610,10 @@ int main(int argc, char* argv[]) {
                 break;
             }
 
+            sf::Color pixelColor = mainFractalImage.mapFractalData(fd);
+
             ImGui::BeginTooltip();
+            sfColorEdit3("##pixelcolor", &pixelColor, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker);
             ImGui::TextUnformatted((
                 "Iterations: " + std::to_string(fd.iterations) + '\n' +
                 std::to_string(fd.iterResult) + " (" + testString + ")" + '\n' +
