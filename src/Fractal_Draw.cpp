@@ -6,7 +6,7 @@ bool FractalImage::debugColors = false;
 int FractalImage::ColorAmount = 4096;
 int FractalImage::ColorOffset = 0;
 float FractalImage::shadowStrength = 0.5f; 
-fractalAlgorithmFunction FractalImage::currentAlgorithm = &FractalAlgorithms::Mandelbrot;
+fractalAlgorithmFunction FractalImage::currentAlgorithm = &fa::Mandelbrot;
 
 /*
 {"Default",
@@ -101,7 +101,7 @@ void drawThreadTask(FractalImage& fi, int threadIndex) {
 		}
 
 		if (fi.sampleDistance >= -1) {
-			fi.dataArray[i / 4] = FractalAlgorithms::FractalAlgorithm(fi.currentAlgorithm, x, y, fi.scaledWidth, fi.scaledHeight, fi.iterationMax, fi.centerX, fi.centerY, fi.scale, fi.aspectRatio, fi.flags);
+			fi.dataArray[i / 4] = fa::FractalAlgorithm(fi.currentAlgorithm, x, y, fi.scaledWidth, fi.scaledHeight, fi.iterationMax, fi.centerX, fi.centerY, fi.scale, fi.aspectRatio, fi.flags);
 			c = fi.mapFractalData(fi.dataArray[i / 4]);
 		}
 		else {
@@ -113,7 +113,7 @@ void drawThreadTask(FractalImage& fi, int threadIndex) {
 
 			int dataArrayIndex = i / 4 * superSampling * superSampling;
 
-			fi.dataArray[dataArrayIndex] = FractalAlgorithms::FractalAlgorithm(fi.currentAlgorithm, x * superSampling, y * superSampling, fi.scaledWidth * superSampling, fi.scaledHeight * superSampling, fi.iterationMax, fi.centerX, fi.centerY, fi.scale, fi.aspectRatio, fi.flags);
+			fi.dataArray[dataArrayIndex] = fa::FractalAlgorithm(fi.currentAlgorithm, x * superSampling, y * superSampling, fi.scaledWidth * superSampling, fi.scaledHeight * superSampling, fi.iterationMax, fi.centerX, fi.centerY, fi.scale, fi.aspectRatio, fi.flags);
 
 			sf::Color z = fi.mapFractalData(fi.dataArray[dataArrayIndex]);
 
@@ -131,7 +131,7 @@ void drawThreadTask(FractalImage& fi, int threadIndex) {
 					dataArrayIndex = i / 4 * superSampling * superSampling + innerX + innerY * superSampling;
 
 					if (!isInside) {
-						fi.dataArray[dataArrayIndex] = FractalAlgorithms::FractalAlgorithm(fi.currentAlgorithm, x * superSampling + innerX, y * superSampling + innerY, fi.scaledWidth * superSampling, fi.scaledHeight * superSampling, fi.iterationMax, fi.centerX, fi.centerY, fi.scale, fi.aspectRatio, fi.flags);
+						fi.dataArray[dataArrayIndex] = fa::FractalAlgorithm(fi.currentAlgorithm, x * superSampling + innerX, y * superSampling + innerY, fi.scaledWidth * superSampling, fi.scaledHeight * superSampling, fi.iterationMax, fi.centerX, fi.centerY, fi.scale, fi.aspectRatio, fi.flags);
 					}
 					else {
 						fi.dataArray[dataArrayIndex] = fi.dataArray[i / 4 * superSampling * superSampling];

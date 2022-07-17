@@ -1,17 +1,18 @@
 #ifndef FMATHS
 #define FMATHS
 
+// Fractal algorithms and other math stuff for Fractal Remake
+
 #include "Fractal_Utils.h"
 
 #include <cmath>
-#include <algorithm>
 #include <map>
 
 const double pi = 3.14159265359878323;
 
 typedef fractalData(*fractalAlgorithmFunction)(double, double, int, int);
 
-namespace FractalAlgorithms {
+namespace fa {
 
 	extern std::map<const char*, fractalAlgorithmFunction> fractalAlgorithms;
 

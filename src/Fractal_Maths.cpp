@@ -3,7 +3,8 @@
 #include "Fractal_Maths.h"
 
 
-namespace FractalAlgorithms {
+
+namespace fa {
 
 	std::map<const char*, fractalAlgorithmFunction> fractalAlgorithms{
 		{"Mandelbrot", &Mandelbrot},
@@ -51,13 +52,13 @@ namespace FractalAlgorithms {
 
 		fractalData results = {};
 
-		if ((flags & DisableTests) == 0) {
+		/*if ((flags & DisableTests) == 0) {
 			if (checkCircles(Cx, Cy)) {
 				results.iterations = max_iter;
 				results.iterResult = CircleTest;
 				return results;
 			}
-		}
+		}*/
 
 		double Zx = Cx;
 		double Zy = Cy;

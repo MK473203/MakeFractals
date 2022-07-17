@@ -1,6 +1,8 @@
 #ifndef FDRAW
 #define FDRAW
 
+// Code for mapping colors to iterations, drawing images etc.
+
 #include "Fractal_Utils.h"
 #include "Fractal_Maths.h"
 #include <SFML/System/Clock.hpp>

@@ -1,5 +1,6 @@
 #ifndef FUTILS
 #define FUTILS
+#define NOMINMAX
 
 //Code for enums, structs and other utility stuff that doesnt fit better to other files.
 
@@ -8,6 +9,8 @@
 #include <iomanip>
 #include <sstream>
 #include <limits>
+#include <Windows.h>
+#include <chrono>
 #include "imgui.h"
 #include <SFML/Graphics/Color.hpp>
 #include <boost/random/mersenne_twister.hpp>
@@ -38,10 +41,16 @@ struct colorPalette {
 
 #include "Fractal_Maths.h"
 
-void generateDataset(int size);
+void generateDataset(int size, int max_iter);
 
 void printDataset(int size);
 
 bool sfColorEdit3(const char* label, sf::Color* color, ImGuiColorEditFlags flags);
+
+void HelpMarker(const char* desc);
+
+void handleConsoleParams(int argc, char* argv[]);
+
+void BenchmarkMandelbrot();
 
 #endif // !FUTILS

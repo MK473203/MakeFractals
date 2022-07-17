@@ -1,6 +1,8 @@
 #ifndef FREMAKE
 #define FREMAKE
 
+// The code for combining everything together into an interacive application
+
 
 #include "Fractal_Maths.h"
 #include "Fractal_Draw.h"
@@ -17,9 +19,5 @@
 #include <chrono>
 #include <iostream>
 #include <filesystem>
-#include <Windows.h>
-#include <stdio.h>
-#include <io.h>
-#include <fcntl.h>
 
 #endif // !FREMAKE

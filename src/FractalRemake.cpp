@@ -1,61 +1,6 @@
 #include "FractalRemake.h"
 
-static void HelpMarker(const char* desc)
-{
-    ImGui::TextDisabled("(?)");
-    if (ImGui::IsItemHovered())
-    {
-        ImGui::BeginTooltip();
-        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 25.0f);
-        ImGui::TextUnformatted(desc);
-        ImGui::PopTextWrapPos();
-        ImGui::EndTooltip();
-    }
-}
-
-void handleConsoleParams(int argc, char* argv[]) {
-
-    AllocConsole();
-
-    FILE* fDummy;
-    freopen_s(&fDummy, "CONOUT$", "w", stdout);
-    freopen_s(&fDummy, "CONIN$", "r", stdin);
-    std::cout.clear();
-    std::cin.clear();
-
-    std::string arg1 = std::string(argv[1]);
-
-    if (arg1 == "-h" || arg1 == "--help" || arg1 == "help") {
-        // TODO : Print help text
-        std::cout << "insert help text here" << std::endl;
-
-    } else if (arg1 == "-p" || arg1 == "--point" || arg1 == "point") {
-        try
-        {
-            double x = std::stod(argv[2]);
-            double y = std::stod(argv[3]);
-
-            fractalData data = FractalAlgorithms::Mandelbrot(x, y, 1000000, 0);
-
-            if (data.iterResult == NotInside) {
-                std::cout << "Point is not inside the Mandelbrot set, escaping at " << data.iterations << " iterations." << std::endl;
-            }
-            else {
-                std::cout << "Point is inside the Mandelbrot set at " << data.iterations << " iterations." << std::endl;
-            }
-
-        }
-        catch (const std::exception& e)
-        {
-            std::cout << e.what();
-        }
-
-    }
-
-    std::cout << "Press ENTER to exit...";
-    std::cin.get();
-
-}
+// The code for combining everything together into an interacive application
 
 int main(int argc, char* argv[]) {
 
@@ -68,6 +13,7 @@ int main(int argc, char* argv[]) {
     }
 
     sf::RenderWindow window(sf::VideoMode(1280, 960), "Fractal Remake");
+    window.setVerticalSyncEnabled(true);
     ImGui::SFML::Init(window);
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
@@ -119,7 +65,7 @@ int main(int argc, char* argv[]) {
     std::future_status drawThreadStatus = std::future_status::ready;
 
     std::vector<const char*> algorithmComboItems;
-    for (std::map<const char*, fractalAlgorithmFunction>::iterator it = FractalAlgorithms::fractalAlgorithms.begin(); it != FractalAlgorithms::fractalAlgorithms.end(); it++)
+    for (std::map<const char*, fractalAlgorithmFunction>::iterator it = fa::fractalAlgorithms.begin(); it != fa::fractalAlgorithms.end(); it++)
     {
         algorithmComboItems.push_back(it->first);
     }
@@ -178,7 +124,7 @@ int main(int argc, char* argv[]) {
 
                 static int algorithmComboIndex = 0;
                 if (ImGui::Combo("Algorithm##algorithmcombo", &algorithmComboIndex, algorithmComboItems.data(), algorithmComboItems.size())) {
-                    mainFractalImage.currentAlgorithm = FractalAlgorithms::fractalAlgorithms[algorithmComboItems[algorithmComboIndex]];
+                    mainFractalImage.currentAlgorithm = fa::fractalAlgorithms[algorithmComboItems[algorithmComboIndex]];
 
                     mainFractalImage.renderingStatus = NeedUpdate;
                 }
@@ -194,9 +140,9 @@ int main(int argc, char* argv[]) {
                     static bool disableShadow = false;
 
                     int flags = 0;
-                    if (disableTests) flags |= FractalAlgorithms::DisableTests;
-                    if (disableSmooth) flags |= FractalAlgorithms::DisableSmoothing;
-                    if (disableShadow) flags |= FractalAlgorithms::DisableShadowCalculation;
+                    if (disableTests) flags |= fa::DisableTests;
+                    if (disableSmooth) flags |= fa::DisableSmoothing;
+                    if (disableShadow) flags |= fa::DisableShadowCalculation;
 
                     if(ImGui::Checkbox("Disable tests", &disableTests)) mainFractalImage.renderingStatus = NeedUpdate;
                     ImGui::SameLine(); HelpMarker("Disables some checks that test if a given point is inside the set.\nFaster when left unchecked in most cases except when there are very few points belonging to the set visible");
@@ -399,13 +345,13 @@ int main(int argc, char* argv[]) {
                     mainFractalImage.refreshVisuals();
                 }
 
-                if (ImGui::DragInt("Shadow angle", &FractalAlgorithms::shadowAngle, 1.0f, 0, 360, "%d", 0 | ImGuiSliderFlags_AlwaysClamp) && mainFractalImage.shadowFx) {
-                    FractalAlgorithms::updateShadowVars();
+                if (ImGui::DragInt("Shadow angle", &fa::shadowAngle, 1.0f, 0, 360, "%d", 0 | ImGuiSliderFlags_AlwaysClamp) && mainFractalImage.shadowFx) {
+                    fa::updateShadowVars();
                     mainFractalImage.renderingStatus = NeedUpdate;
 
                 } ImGui::SameLine(); HelpMarker("Warning! Requires re-rendering");
 
-                if (ImGui::DragFloat("Shadow height", &FractalAlgorithms::h2, 0.01f, 0.0f, 10.0f, "%.2f", 0 | ImGuiSliderFlags_AlwaysClamp) && mainFractalImage.shadowFx) {
+                if (ImGui::DragFloat("Shadow height", &fa::h2, 0.01f, 0.0f, 10.0f, "%.2f", 0 | ImGuiSliderFlags_AlwaysClamp) && mainFractalImage.shadowFx) {
                     mainFractalImage.renderingStatus = NeedUpdate;
 
                 } ImGui::SameLine(); HelpMarker("Warning! Requires re-rendering");
@@ -519,12 +465,17 @@ int main(int argc, char* argv[]) {
 
                 }
 
-                /*if (ImGui::Button("Generate dataset")) {
-                    generateDataset(100000000);
+                if (ImGui::Button("Generate dataset")) {
+                    generateDataset(1000000, 1000000);
                 }
+
                 if (ImGui::Button("Print dataset")) {
                     printDataset(100);
-                }*/
+                }
+
+                if (ImGui::Button("Benchmark")) {
+                    BenchmarkMandelbrot();
+                }
 
                 ImGui::EndTabItem();
             }
@@ -855,7 +806,7 @@ int main(int argc, char* argv[]) {
 
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
         windowTexture.update(window);
 
