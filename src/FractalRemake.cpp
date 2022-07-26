@@ -61,9 +61,6 @@ int main(int argc, char* argv[]) {
 
     sf::Clock deltaClock;
 
-    std::future<void> drawThread;
-    std::future_status drawThreadStatus = std::future_status::ready;
-
     std::vector<const char*> algorithmComboItems;
     for (std::map<const char*, fractalAlgorithmFunction>::iterator it = fa::fractalAlgorithms.begin(); it != fa::fractalAlgorithms.end(); it++)
     {
@@ -571,8 +568,6 @@ int main(int argc, char* argv[]) {
                 "Smooth value: " + std::to_string(fd.smoothValue) + '\n' +
                 "Shadow value: " + std::to_string(fd.shadowValue) + '\n').c_str());
             ImGui::EndTooltip();
-
-            ImGui::End();
         }
 
 #pragma endregion
@@ -794,12 +789,12 @@ int main(int argc, char* argv[]) {
 
             renderTexture.update(window);
             mainFractalImage.pixelArray.assign(mainFractalImage.pixelArray.size(), 0);
-            std::packaged_task<void()> task([&mainFractalImage] {
+            /*std::packaged_task<void()> task([&mainFractalImage] {
                 mainFractalImage.updatePixels();
                 });
-            drawThread = task.get_future();
             std::thread t(std::move(task));
-            t.detach();
+            t.detach();*/
+            mainFractalImage.updatePixels();
             fractalSprite.setScale(sf::Vector2f(std::max(mainFractalImage.sampleDistance, 1), std::max(mainFractalImage.sampleDistance, 1)));
             fractalSprite.setOrigin((sf::Vector2f)fractalSprite.getLocalBounds().getSize() / 2.0f);
             fractalSprite.setPosition((sf::Vector2f)window.getSize() / 2.0f);
