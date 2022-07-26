@@ -12,7 +12,7 @@ namespace fa {
 		{"Burning Ship", &BurningShip},
 	};
 
-	double eps = std::numeric_limits<double>::epsilon();
+	double eps = std::numeric_limits<double>::epsilon() * 1000;
 
 	float h2 = 1.5;
 	int shadowAngle = 45;
@@ -98,7 +98,7 @@ namespace fa {
 
 			if ((flags & DisableTests) == 0) {
 				if (derx * derx + dery * dery < eps) {
-					results.iterations = max_iter;
+					results.iterations = iter;
 					results.iterResult = DerTest;
 					return results;
 				}
@@ -120,7 +120,7 @@ namespace fa {
 				if (xDiff < eps) {
 					double yDiff = abs(Zy - hy);
 					if (yDiff < eps) {
-						results.iterations = max_iter;
+						results.iterations = iter;
 						results.iterResult = LoopTest;
 						return results;
 					}
