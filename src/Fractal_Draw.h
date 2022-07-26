@@ -39,8 +39,6 @@ public:
 
 	static std::vector<sf::Color> palette;
 
-	static std::vector<std::thread> threadPool;
-	static std::atomic_bool interruptThreads;
 
 	FractalImage(int width = 1920, int height = 1080) :
 		width(width),
@@ -92,9 +90,30 @@ public:
 		aspectRatio = (float)width / height;
 		scaledHeight = height / std::max(sampleDistance, 1);
 		scaledWidth = width / std::max(sampleDistance, 1);
-		dataArray.resize(width* height, {});
-		pixelArray.resize(scaledHeight* scaledWidth * 4, 0);
+		dataArray.resize(width * height, {});
+		pixelArray.resize(scaledHeight * scaledWidth * 4, 0);
 		threadAmount = std::thread::hardware_concurrency() - 2;
+	}
+
+	FractalImage& operator = (FractalImage fi)
+	{
+		width = fi.width;
+		height = fi.height;
+		iterationMax = fi.iterationMax;
+		centerX = fi.centerX;
+		centerY = fi.centerY;
+		scale = fi.scale;
+		sampleDistance = fi.sampleDistance;
+		iterDiv = fi.iterDiv;
+
+		aspectRatio = (float)width / height;
+		scaledHeight = height / std::max(sampleDistance, 1);
+		scaledWidth = width / std::max(sampleDistance, 1);
+		dataArray.resize(width * height, {});
+		pixelArray.resize(scaledHeight * scaledWidth * 4, 0);
+		threadAmount = std::thread::hardware_concurrency() - 2;
+
+		return *this;
 	}
 
 	int height, width, iterationMax, iterDiv, threadAmount, scaledHeight, scaledWidth;
@@ -105,13 +124,17 @@ public:
 
 	std::vector<uint8_t> pixelArray;
 
+	std::vector<std::thread> threadPool;
+
+	std::atomic_bool interruptThreads = false;
+
 	renderStatus renderingStatus = Empty;
 	float renderProgress = 0;
 
 	int flags = 0;
 
 	sf::Clock renderClock;
-	int lastRenderTime;
+	int lastRenderTime = 0;
 
 
 	int sampleDistance;
@@ -119,7 +142,7 @@ public:
 
 	void updatePixels();
 
-	static void cancelUpdate();
+	void cancelUpdate();
 
 	void saveToImage(const char* relativePath);
 

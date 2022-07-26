@@ -59,9 +59,6 @@ std::vector<colorPalette> FractalImage::paletteList{
 
 colorPalette FractalImage::currentPalette = FractalImage::paletteList[0];
 
-std::vector<std::thread> FractalImage::threadPool;
-std::atomic_bool FractalImage::interruptThreads = false;
-
 sf::Color FractalImage::setColor = sf::Color();
 sf::Color FractalImage::debugColor = sf::Color(255, 255, 0);
 
@@ -261,9 +258,11 @@ void FractalImage::updatePixels() {
 
 	renderClock.restart();
 
+	threadPool.resize(threadAmount);
+
 	for (int i = 0; i < threadAmount; i++)
 	{
-		threadPool.push_back(std::thread(drawThreadTask, std::ref(*this), i));
+		threadPool[i] = std::thread(drawThreadTask, std::ref(*this), i);
 	}
 
 }
@@ -336,19 +335,14 @@ void FractalImage::cancelUpdate() {
 
 	interruptThreads = true;
 
-	for (auto iter = threadPool.begin(); iter != threadPool.end(); iter++)
+	for (auto i = 0; i < threadPool.size(); i++)
 	{
-		try
-		{
-			iter->join();
-		}
-		catch (const std::exception& e)
-		{
-			std::cout << e.what() << std::endl;
+		if (threadPool[i].joinable()) {
+			//std::cout << i << " is joinable..." << std::endl;
+			threadPool[i].join();
+			//std::cout << i << " joined." << std::endl;
 		}
 	}
-
-	threadPool.clear();
 
 	interruptThreads = false;
 
