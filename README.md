@@ -1,4 +1,4 @@
-# Fractal Remake
+# MakeFractals
 
 An application for exploring and generating images of fractals
 
