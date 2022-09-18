@@ -25,7 +25,7 @@ std::vector<apfloat> refy;
 
 int startingIter = 0;
 
-apfloat A[2], B[2], C[2], D[2];
+apcomplex A, B, C, D;
 
 fractalData FractalAlgorithm(fractalAlgorithmFunction algorithm, int _x, int _y, int Width, int Height, int max_iter, 
 							 const apfloat& centerx, const apfloat& centery, const deltafloat& scale, float aspectRatio, int flags) {
@@ -48,8 +48,8 @@ fractalData FractalAlgorithm(fractalAlgorithmFunction algorithm, int _x, int _y,
 }
 
 void calculateStartingIter(apfloat x, apfloat y, int max_iter) {
-	apfloat Cx = std::move(x);
-	apfloat Cy = std::move(y);
+	apfloat Cx = x;
+	apfloat Cy = y;
 
 	apfloat Zx = Cx;
 	apfloat Zy = Cy;
@@ -92,8 +92,8 @@ void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale,
 	}*/
 
 
-	apfloat Cx = std::move(x);
-	apfloat Cy = std::move(y);
+	apfloat Cx = x;
+	apfloat Cy = y;
 
 	apfloat Zx = 0;
 	apfloat Zy = 0;
@@ -101,41 +101,28 @@ void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale,
 
 	startingIter = 0;
 
-	apfloat tempA[2], tempB[2], tempC[2], tempD[2] = { 0, 0 };
+	apcomplex tempA, tempB, tempC, tempD = { 0, 0 };
 
-	A[0] = 0;
-	A[1] = 0;
-	B[0] = 0;
-	B[1] = 0;
-	C[0] = 0;
-	C[1] = 0;
-	D[0] = 0;
-	D[1] = 0;
+	A = { 0, 0 };
+	B = { 0, 0 };
+	C = { 0, 0 };
+	D = { 0, 0 };
 
 	long iter;
 
 	for (iter = 0; iter < max_iter; iter++) {
 
 		if (startingIter == 0) {
-			tempA[0] = 2.0 * A[0] * Zx - 2.0 * A[1] * Zy + 1.0;
-			tempA[1] = 2.0 * A[0] * Zy + 2.0 * A[1] * Zx;
-			tempB[0] = A[0] * A[0] - A[1] * A[1] + 2.0 * B[0] * Zx - 2.0 * B[1] * Zy;
-			tempB[1] = 2.0 * A[0] * A[1] + 2.0 * B[0] * Zy + 2.0 * B[1] * Zx;
-			tempC[0] = 2.0 * A[0] * B[0] - 2.0 * A[1] * B[1] + 2.0 * C[0] * Zx - 2.0 * C[1] * Zy;
-			tempC[1] = 2.0 * A[0] * B[1] + 2.0 * A[1] * B[0] + 2.0 * C[0] * Zy + 2.0 * C[1] * Zx;
-			tempD[0] = 2.0 * A[0] * C[0] - 2.0 * A[1] * C[1] + B[0] * B[0] - B[1] * B[1] + 2.0 * D[0] * Zx - 2.0 * D[1] * Zy;
-			tempD[1] = 2.0 * A[0] * C[1] + 2.0 * A[1] * C[0] + 2.0 * B[0] * B[1] + 2.0 * D[0] * Zy + 2.0 * D[1] * Zx;
-			A[0] = tempA[0];
-			A[1] = tempA[1];
-			B[0] = tempB[0];
-			B[1] = tempB[1];
-			C[0] = tempC[0];
-			C[1] = tempC[1];
-			D[0] = tempD[0];
-			D[1] = tempD[1];
+
+			tempA = 2 * apcomplex(Zx, Zy) * A + 1;
+			tempB = 2 * apcomplex(Zx, Zy) * B + A * A;
+			tempC = 2 * apcomplex(Zx, Zy) * C + 2 * A * B;
+			A = tempA;
+			B = tempB;
+			C = tempC;
 
 			if (iter > 10) {
-				if (sqrt(B[0] * B[0] + B[1] * B[1]) / (sqrt(C[0] * C[0] + C[1] * C[1]) * scale) < pow(10.0, 12.0)) {
+				if (abs(B) / (abs(C) * scale) < pow(10.0, 12.0)) {
 					startingIter = iter +1;
 				}
 			}
@@ -152,7 +139,7 @@ void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale,
 
 	}
 
-	std::cout << std::setprecision(std::numeric_limits<apfloat>::digits10 + 1);
+	/*std::cout << std::setprecision(std::numeric_limits<apfloat>::digits10 + 1);
 	std::cout << Cx << std::endl;
 	std::cout << Cy << std::endl;
 	std::cout << A[0] << std::endl;
@@ -162,7 +149,7 @@ void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale,
 	std::cout << C[0] << std::endl;
 	std::cout << C[1] << std::endl;
 	std::cout << D[0] << std::endl;
-	std::cout << D[1] << std::endl;
+	std::cout << D[1] << std::endl;*/
 
 
 
@@ -315,8 +302,8 @@ fractalData BigNumMandelbrot		(const apfloat& x, const apfloat& y, int max_iter,
 #pragma region variables
 
 
-	apfloat Cx = std::move(x);
-	apfloat Cy = std::move(y);
+	apfloat Cx = x;
+	apfloat Cy = y;
 
 	fractalData results = {};
 
@@ -456,17 +443,14 @@ fractalData MandelbrotSAPerturbation(const apfloat& x, const apfloat& y, int max
 	double Dx = x.convert_to<double>();
 	double Dy = y.convert_to<double>();
 
+	apcomplex Dcomplex = {x, y};
+
 	fractalData results = {};
 
-	//double Ex = (A[0] * x - A[1] * y + B[0] * (x * x - y * y) - 2 * B[1] * x * y + C[0] * x * (x * x - 3 * y * y) - C[1] * y * (3 * x * x - y * y)).convert_to<double>();
-	//double Ey = (A[0] * y + A[1] * x + 2 * B[0] * x * y + B[1] * (x * x - y * y) + C[0] * y * (3 * x * x - y * y) + C[1] * x * (x * x - 3 * y * y)).convert_to<double>();
-	
-	//double Ex = (A[0] * x - A[1] * y + B[0] * (x * x - y * y) - 2 * B[1] * x * y + C[0] * x * (x * x - 3 * y * y) - C[1] * (3 * x * x - y * y) * y + x * x * x * x * D[0] - 4 * x * x * x * y * D[1] - 6 * x * x * y * y * D[0] + 4 * x * y * y * y * D[1] + y * y * y * y * D[0]).convert_to<double>();
-	double Ex = (x * (A[0] - y * (2 * B[1] + y * (3 + 6 * x * D[0])) + x * (B[0] - x * (4 * y * D[1] - C[0] + x * D[0]))) + y * (y * (y * (C[1] + 4 * x + y) - B[0]) - A[1] - 3 * C[1] * x * x)).convert_to<double>();
+	apcomplex Ecomplex = A * Dcomplex + B * Dcomplex * Dcomplex + C * Dcomplex * Dcomplex * Dcomplex;
 
-
-	//double Ey = (A[0] * y + A[1] * x + 2 * B[0] * x * y + B[1] * (x * x - y * y) + C[0] * (3 * x * x - y * y) * y + C[1] * x * (x * x - 3 * y * y) + x * x * x * x * D[1] + 4 * x * x * x * y * D[0] - 6 * x * x * y * y * D[1] - 4 * x * y * y * y * D[0] + y * y * y * y * D[1]).convert_to<double>();
-	double Ey = (x * (A[1] + 2 * B[0] * y + x * (B[1] + x * (C[1] + y * (x * (3 * C[0] + 4 * D[0]) - 6 * D[1] * y) + D[1] * x))) + y * (A[0] - y * (B[1] + 3 * C[1] * x + y * (3 * C[0] + 4 * D[0] * x - D[1] * y)))).convert_to<double>();
+	double Ex = Ecomplex.real().convert_to<double>();
+	double Ey = Ecomplex.imag().convert_to<double>();
 
 	double xtemp;
 
@@ -549,8 +533,8 @@ fractalData MandelbrotSAPerturbation(const apfloat& x, const apfloat& y, int max
 
 		if ((flags & DisableSmoothing) == 0) {
 
-			float log_zn = log(Fx * Fx + Fy * Fy).convert_to<float>() / 2.0;
-			float nu = log(log_zn / log(2)) / log(2);
+			float log_zn = log(Fx * Fx + Fy * Fy).convert_to<float>() / 2.0f;
+			float nu = log(log_zn / log(2.0f)) / log(2.0f);
 
 			nu = 4 - nu;
 
@@ -576,8 +560,8 @@ fractalData EvenOddMandelbrot		(const apfloat& x, const apfloat& y, int max_iter
 #pragma region variables
 
 
-	apfloat Cx = std::move(x);
-	apfloat Cy = std::move(y);
+	apfloat Cx = x;
+	apfloat Cy = y;
 
 	fractalData results = {};
 
