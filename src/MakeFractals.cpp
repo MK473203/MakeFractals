@@ -465,16 +465,22 @@ int main(int argc, char* argv[]) {
 
             if(shouldImgMove) {
 
-                float yOffset = ((float)dy / mainFractalImage.height);
-                float xOffset = ((float)dx / mainFractalImage.width);
-                
-                mainFractalImage.centerY += mainFractalImage.scale * yOffset;
-                translationVector.y -= 2 * yOffset / matrixScale;
+                if (dx != 0) {
 
-                mainFractalImage.centerX -= mainFractalImage.scale * xOffset * mainFractalImage.aspectRatio;
-                translationVector.x += 2 * xOffset / matrixScale;
+                    float xOffset = ((float)dx / mainFractalImage.width);
+                    mainFractalImage.centerX -= mainFractalImage.scale * xOffset * mainFractalImage.aspectRatio;
+                    translationVector.x += 2 * xOffset / matrixScale;
+                    mainFractalImage.renderingStatus = NeedUpdate;
 
-                mainFractalImage.renderingStatus = NeedUpdate;
+                }
+                if(dy != 0) {
+
+                    float yOffset = ((float)dy / mainFractalImage.height);
+                    mainFractalImage.centerY += mainFractalImage.scale * yOffset;
+                    translationVector.y -= 2 * yOffset / matrixScale;
+                    mainFractalImage.renderingStatus = NeedUpdate;
+
+                }
 	            
             }
 
