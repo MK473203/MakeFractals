@@ -5,7 +5,7 @@
 
 #include <cmath>
 #include <boost/multiprecision/gmp.hpp>
-#include <boost/multiprecision/mpfr.hpp>
+#include <boost/multiprecision/mpc.hpp>
 
 #include "Fractal_Utils.h"
 
@@ -14,6 +14,8 @@ const float pi = 3.14159265359878323f;
 typedef boost::multiprecision::mpf_float_50 apfloat;
 
 typedef boost::multiprecision::number<boost::multiprecision::gmp_float<10> > deltafloat;
+
+typedef boost::multiprecision::mpc_complex_50 apcomplex;
 
 typedef fractalData(*fractalAlgorithmFunction)(const apfloat&, const apfloat&, int, int);
 
