@@ -12,9 +12,9 @@
       "ctestCommandArgs": ""
     },
     {
-      "name": "VS-release",
+      "name": "VS-relwithdebinfo",
       "generator": "Ninja",
-      "configurationType": "Release",
+      "configurationType": "RelWithDebInfo",
       "buildRoot": "${projectDir}\\build\\${name}",
       "installRoot": "${projectDir}\\install\\${name}",
       "buildCommandArgs": "-v",
@@ -66,6 +66,28 @@
         },
         {
           "name": "CMAKE_C_FLAGS",
+          "value": "",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "name": "VS-release",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "buildRoot": "${projectDir}\\build\\${name}",
+      "installRoot": "${projectDir}\\install\\${name}",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": [
+        {
+          "name": "CMAKE_C_FLAGS",
+          "value": "",
+          "type": "STRING"
+        },
+        {
+          "name": "CMAKE_CXX_FLAGS",
           "value": "",
           "type": "STRING"
         }
