@@ -23,9 +23,11 @@ float vy = sin(pi / 180 * shadowAngle);
 std::vector<apfloat> refx;
 std::vector<apfloat> refy;
 
-int startingIter = 0;
+unsigned int startingIter = 0;
+unsigned int highestIter = 0;
+constexpr int seriesLength = 60;
 
-apcomplex A, B, C, D;
+apcomplex cf[seriesLength];
 
 fractalData FractalAlgorithm(fractalAlgorithmFunction algorithm, int _x, int _y, int Width, int Height, int max_iter, 
 							 const apfloat& centerx, const apfloat& centery, const deltafloat& scale, float aspectRatio, int flags) {
@@ -62,6 +64,8 @@ void calculateStartingIter(apfloat x, apfloat y, int max_iter) {
 		if (Zx * Zx + Zy * Zy >= 4.0) {
 			if (iter < startingIter) {
 				startingIter = std::max(iter, 1l);
+			} else if(iter > highestIter) {
+				highestIter = iter;
 			}
 			return;
 		}
@@ -78,78 +82,96 @@ void calculateStartingIter(apfloat x, apfloat y, int max_iter) {
 
 void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale, int max_iter) {
 
+
 	refx.clear();
 	refx.resize(max_iter);
 	refy.clear();
 	refy.resize(max_iter);
 
-	/*for (int _x = -1; _x < 2; _x++)
+	for(int i = 0; i < seriesLength; ++i) {
+
+		cf[i] = { 0, 0 };
+		
+	}
+
+	apcomplex tempcf[seriesLength];
+
+	for (int i = 0; i < seriesLength; ++i) {
+
+		tempcf[i] = { 0, 0 };
+
+	}
+
+	startingIter = max_iter;
+	highestIter = 0;
+
+	int samplePoints = 9;
+
+	for (float _x = -1; _x <= 1; _x += 2.0f / (samplePoints - 1))
 	{
-		for (int _y = -1; _y < 2; _y++)
+		for (float _y = -1; _y <= 1; _y += 2.0f / (samplePoints - 1))
 		{
-			calculateStartingIter(x + _x * scale, y + _y * scale, max_iter);
+			calculateStartingIter(x + _x * scale * 0.6, y + _y * scale * 0.6, max_iter);
 		}
-	}*/
+	}
+	
+	apcomplex C = { x, y };
+	apcomplex Z = { 0, 0 };
 
-
-	apfloat Cx = x;
-	apfloat Cy = y;
-
-	apfloat Zx = 0;
-	apfloat Zy = 0;
 	apfloat xtemp;
-
-	startingIter = 0;
-
-	apcomplex tempA, tempB, tempC, tempD = { 0, 0 };
-
-	A = { 0, 0 };
-	B = { 0, 0 };
-	C = { 0, 0 };
-	D = { 0, 0 };
 
 	long iter;
 
 	for (iter = 0; iter < max_iter; iter++) {
 
-		if (startingIter == 0) {
+		if (iter < startingIter) {
 
-			tempA = 2 * apcomplex(Zx, Zy) * A + 1;
-			tempB = 2 * apcomplex(Zx, Zy) * B + A * A;
-			tempC = 2 * apcomplex(Zx, Zy) * C + 2 * A * B;
-			A = tempA;
-			B = tempB;
-			C = tempC;
+			for (int i = 0; i < seriesLength; i++) {
 
-			if (iter > 10) {
-				if (abs(B) / (abs(C) * scale) < pow(10.0, 12.0)) {
-					startingIter = iter +1;
+				tempcf[i] = 2 * Z * cf[i];
+
+				if(i == 0) {
+					tempcf[i] += 1;
+				} else if (i % 2 == 1) {
+
+					for (int j = 0; j < i / 2; j++) {
+						tempcf[i] += 2 * cf[j] * cf[i - j - 1];
+					}
+
+					tempcf[i] += cf[i / 2] * cf[i / 2];
+					
+				} else {
+					for (int j = 0; j < i / 2; j++) {
+						tempcf[i] += 2 * cf[j] * cf[i - j - 1];
+					}
 				}
+
+			}
+
+			for (int i = 0; i < seriesLength; i++) {
+				cf[i] = tempcf[i];
 			}
 
 		}
 		else {
-			refx[iter] = Zx;
-			refy[iter] = Zy;
+
+			mpc_real(refx[iter].backend().data(), Z.backend().data(), MPFR_RNDN);
+			mpc_imag(refy[iter].backend().data(), Z.backend().data(), MPFR_RNDN);
+
 		}
 
-		xtemp = Zx * Zx - Zy * Zy + Cx;
-		Zy = (Zx + Zx) * Zy + Cy;
-		Zx = xtemp;
+		Z = Z * Z + C;
 
 	}
 
-	/*std::cout << std::setprecision(std::numeric_limits<apfloat>::digits10 + 1);
-	std::cout << Cx << std::endl;
-	std::cout << Cy << std::endl;
-	std::cout << A[0] << std::endl;
-	std::cout << A[1] << std::endl;
-	std::cout << B[0] << std::endl;
-	std::cout << B[1] << std::endl;
-	std::cout << C[0] << std::endl;
-	std::cout << C[1] << std::endl;
-	std::cout << D[0] << std::endl;
-	std::cout << D[1] << std::endl;*/
+	/*std::cout << std::setprecision(std::numeric_limits<apcomplex>::digits10 + 1);
+
+	for (int i = 0; i <= seriesLength; ++i) {
+
+		std::cout << cf[i].str() << std::endl;
+
+	}*/
+
 
 
 
@@ -393,12 +415,11 @@ fractalData BigNumMandelbrot		(const apfloat& x, const apfloat& y, int max_iter,
 
 		if ((flags & DisableSmoothing) == 0) {
 
-			float log_zn = log(Zx * Zx + Zy * Zy).convert_to<float>() / 2.0f;
-			float nu = log(log_zn / log(2)) / log(2);
+			float log_zn = log((Zx * Zx + Zy * Zy).convert_to<float>()) / 2.0f;
+
+			float nu = log(log_zn / log(2.0f)) / log(2.0f);
 
 			nu = 4 - nu;
-
-			results.smoothValue = nu;
 		}
 		else {
 			results.smoothValue = 0.0f;
@@ -447,7 +468,13 @@ fractalData MandelbrotSAPerturbation(const apfloat& x, const apfloat& y, int max
 
 	fractalData results = {};
 
-	apcomplex Ecomplex = A * Dcomplex + B * Dcomplex * Dcomplex + C * Dcomplex * Dcomplex * Dcomplex;
+	apcomplex Ecomplex = {0, 0};
+
+	for(int i = 0; i < seriesLength; i++) {
+
+		Ecomplex += cf[i] * pow(Dcomplex, i + 1);
+		
+	}
 
 	double Ex = Ecomplex.real().convert_to<double>();
 	double Ey = Ecomplex.imag().convert_to<double>();
@@ -533,7 +560,9 @@ fractalData MandelbrotSAPerturbation(const apfloat& x, const apfloat& y, int max
 
 		if ((flags & DisableSmoothing) == 0) {
 
-			float log_zn = log(Fx * Fx + Fy * Fy).convert_to<float>() / 2.0f;
+			//float log_zn = log(Fx * Fx + Fy * Fy).convert_to<float>() / 2.0f;
+			float log_zn = log((Fx * Fx + Fy * Fy).convert_to<float>()) / 2.0f;
+			
 			float nu = log(log_zn / log(2.0f)) / log(2.0f);
 
 			nu = 4 - nu;

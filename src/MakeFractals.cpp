@@ -158,7 +158,7 @@ int main(int argc, char* argv[]) {
 
     // Initialize the main fractal image
     FractalImage mainFractalImage(SDL_GetWindowSurface(window)->w, SDL_GetWindowSurface(window)->h);
-    mainFractalImage.loadPaletteList();
+    //mainFractalImage.loadPaletteList();
     mainFractalImage.generatePalette();
     calculateReferenceMandelbrot(mainFractalImage.centerX, mainFractalImage.centerY, mainFractalImage.scale, mainFractalImage.iterationMax);
     FractalImage renderingFractalImage = FractalImage();
@@ -445,7 +445,7 @@ int main(int argc, char* argv[]) {
                     
                     dx = -(mainFractalImage.width / 2 - mousePos[0]) / 4;
                     dy = -(mainFractalImage.height / 2  - mousePos[1]) / 4;
-
+                    
                     shouldImgMove = true;
 	                
                 }
@@ -557,7 +557,7 @@ int main(int argc, char* argv[]) {
                 }
 
                 if (ImGui::Combo("Algorithm##algorithmcombo", &algorithmComboIndex, algorithmComboItems.data(), algorithmComboItems.size())) {
-                    mainFractalImage.currentAlgorithm = fractalAlgorithms[algorithmComboItems[algorithmComboIndex]];
+	                FractalImage::currentAlgorithm = fractalAlgorithms[algorithmComboItems[algorithmComboIndex]];
 
                     mainFractalImage.renderingStatus = NeedUpdate;
                 }
@@ -608,7 +608,7 @@ int main(int argc, char* argv[]) {
 
                 static int indexMapperComboIndex = 0;
                 if (ImGui::Combo("Order##indexmappercombo", &indexMapperComboIndex, indexMapperComboItems.data(), indexMapperComboItems.size())) {
-                    mainFractalImage.indexMapper = indexMapAlgorithms[indexMapperComboItems[indexMapperComboIndex]];
+	                FractalImage::indexMapper = indexMapAlgorithms[indexMapperComboItems[indexMapperComboIndex]];
                     mainFractalImage.renderingStatus = NeedUpdate;
                 }
 
@@ -757,7 +757,7 @@ int main(int argc, char* argv[]) {
                 }
 
                 if (ImGui::InputInt("Threads", &mainFractalImage.threadAmount, 1, 1, 0 | ImGuiInputTextFlags_CharsDecimal)) {
-                    mainFractalImage.threadAmount = std::clamp(mainFractalImage.threadAmount, 1, (int)std::thread::hardware_concurrency());
+                    mainFractalImage.threadAmount = std::clamp(mainFractalImage.threadAmount, 1, 4 * (int)std::thread::hardware_concurrency());
                 }
 
 
@@ -769,8 +769,8 @@ int main(int argc, char* argv[]) {
 
                 static int colorMapTypeCombo = 0;
                 if (ImGui::Combo("Coloring method", &colorMapTypeCombo, "Linear cyclic\000Exponential cyclic\000Histogram\000\000")) {
-                    mainFractalImage.currentColorMapType = (colorMapType)colorMapTypeCombo;
-                    if (mainFractalImage.currentColorMapType == Histogram) mainFractalImage.generateHistogram();
+	                FractalImage::currentColorMapType = (colorMapType)colorMapTypeCombo;
+                    if (FractalImage::currentColorMapType == Histogram) mainFractalImage.generateHistogram();
                     mainFractalImage.refreshVisuals();
                 }
 
@@ -780,17 +780,20 @@ int main(int argc, char* argv[]) {
 
                 ImGui::SameLine();
 
-                if (ImGui::DragFloat("Shadow", &FractalImage::shadowStrength, 0.01f, 0.0f, 1.0f, "%.2f", 0 | ImGuiSliderFlags_AlwaysClamp) && mainFractalImage.shadowFx) {
+                if (ImGui::DragFloat("Shadow", &FractalImage::shadowStrength, 0.01f, 0.0f, 1.0f, "%.2f", 0 | ImGuiSliderFlags_AlwaysClamp) &&
+	                FractalImage::shadowFx) {
                     mainFractalImage.refreshVisuals();
                 }
 
-                if (ImGui::DragInt("Shadow angle", &shadowAngle, 1.0f, 0, 360, "%d", 0 | ImGuiSliderFlags_AlwaysClamp) && mainFractalImage.shadowFx) {
+                if (ImGui::DragInt("Shadow angle", &shadowAngle, 1.0f, 0, 360, "%d", 0 | ImGuiSliderFlags_AlwaysClamp) &&
+	                FractalImage::shadowFx) {
                     updateShadowVars();
                     mainFractalImage.renderingStatus = NeedUpdate;
 
                 } ImGui::SameLine(); HelpMarker("Warning! Requires re-rendering");
 
-                if (ImGui::DragFloat("Shadow height", &h2, 0.01f, 0.0f, 10.0f, "%.2f", 0 | ImGuiSliderFlags_AlwaysClamp) && mainFractalImage.shadowFx) {
+                if (ImGui::DragFloat("Shadow height", &h2, 0.01f, 0.0f, 10.0f, "%.2f", 0 | ImGuiSliderFlags_AlwaysClamp) &&
+	                FractalImage::shadowFx) {
                     mainFractalImage.renderingStatus = NeedUpdate;
 
                 } ImGui::SameLine(); HelpMarker("Warning! Requires re-rendering");
@@ -861,7 +864,7 @@ int main(int argc, char* argv[]) {
 
                 if (ImGui::DragFloat("Color offset", &colorOffsetFloat, 0.005f, 0.0f, 1.0f, "%.3f", 0 | ImGuiSliderFlags_AlwaysClamp)) {
 
-                    mainFractalImage.ColorOffset = mainFractalImage.ColorAmount * colorOffsetFloat;
+	                FractalImage::ColorOffset = FractalImage::ColorAmount * colorOffsetFloat;
 
                     mainFractalImage.refreshVisuals();
                 }
@@ -945,7 +948,7 @@ int main(int argc, char* argv[]) {
         static bool showPixelInfoWindow = false;
 
         ImGui::Checkbox("Show pixel info window", &showPixelInfoWindow);
-        if (ImGui::Checkbox("Show debug colors", &mainFractalImage.debugColors)) {
+        if (ImGui::Checkbox("Show debug colors", &FractalImage::debugColors)) {
             mainFractalImage.refreshVisuals();
         }
 
@@ -1125,13 +1128,13 @@ int main(int argc, char* argv[]) {
                 mainFractalImage.refreshVisuals();
             }
 
-            for (int i = 0; i < mainFractalImage.currentPalette.paletteColors.size(); i++)
+            for (int i = 0; i < FractalImage::currentPalette.paletteColors.size(); i++)
             {
                 ImGui::SameLine();
 
                 char temp[24];
                 sprintf_s(temp, "color##palettecolor%d", i);
-                if (sdlColorEdit3(temp, &mainFractalImage.currentPalette.paletteColors[i], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_InputRGB)) {
+                if (sdlColorEdit3(temp, &FractalImage::currentPalette.paletteColors[i], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_InputRGB)) {
                     mainFractalImage.generatePalette();
                     mainFractalImage.refreshVisuals();
                 }

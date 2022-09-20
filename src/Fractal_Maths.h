@@ -5,13 +5,14 @@
 
 #include <cmath>
 #include <boost/multiprecision/gmp.hpp>
+#include <boost/multiprecision/mpfr.hpp>
 #include <boost/multiprecision/mpc.hpp>
 
 #include "Fractal_Utils.h"
 
 const float pi = 3.14159265359878323f;
 
-typedef boost::multiprecision::mpf_float_50 apfloat;
+typedef boost::multiprecision::mpfr_float_50 apfloat;
 
 typedef boost::multiprecision::number<boost::multiprecision::gmp_float<10> > deltafloat;
 
@@ -32,7 +33,8 @@ extern float vy;
 extern std::vector<apfloat> refx;
 extern std::vector<apfloat> refy;
 
-extern int startingIter;
+extern unsigned int startingIter;
+extern unsigned int highestIter;
 
 enum IterationFlags {
 	None						= 0,
