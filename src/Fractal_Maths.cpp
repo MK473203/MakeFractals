@@ -6,7 +6,7 @@
 
 std::map<const char*, fractalAlgorithmFunction> fractalAlgorithms {
 	{"Quick Mandelbrot", &Mandelbrot},
-	{"Deep Mandelbrot (naive)", &BigNumMandelbrot},
+	{"Deep Mandelbrot (brute force)", &BigNumMandelbrot},
 	{"Deep Mandelbrot (perturbation & series approximation)", &MandelbrotSAPerturbation},
 	{"EvenOddMandelbrot", &EvenOddMandelbrot},
 	{"Burning Ship", &BurningShip}
@@ -20,14 +20,18 @@ int shadowAngle = 45;
 float vx = cos(pi / 180 * shadowAngle);
 float vy = sin(pi / 180 * shadowAngle);
 
-std::vector<apfloat> refx;
-std::vector<apfloat> refy;
+apfloat refPointX;
+apfloat refPointY;
+std::vector<double> refx;
+std::vector<double> refy;
 
-unsigned int startingIter = 0;
+unsigned int lowestIter = 0;
+unsigned int perturbationStartingIter = 0;
+unsigned int perturbationEndIter = 0;
 unsigned int highestIter = 0;
-constexpr int seriesLength = 60;
+int seriesLength = 40;
 
-apcomplex cf[seriesLength];
+std::vector<apcomplex> cf;
 
 fractalData FractalAlgorithm(fractalAlgorithmFunction algorithm, int _x, int _y, int Width, int Height, int max_iter, 
 							 const apfloat& centerx, const apfloat& centery, const deltafloat& scale, float aspectRatio, int flags) {
@@ -62,48 +66,43 @@ void calculateStartingIter(apfloat x, apfloat y, int max_iter) {
 	for (iter = 0; iter < max_iter; iter++) {
 
 		if (Zx * Zx + Zy * Zy >= 4.0) {
-			if (iter < startingIter) {
-				startingIter = std::max(iter, 1l);
+			if (iter < lowestIter) {
+				lowestIter = std::max(iter, 1l);
 			} else if(iter > highestIter) {
 				highestIter = iter;
 			}
 			return;
 		}
 
-		refx[iter] = Zx;
-		refy[iter] = Zy;
-
 		xtemp = Zx * Zx - Zy * Zy + Cx;
 		Zy = (Zx + Zx) * Zy + Cy;
 		Zx = xtemp;
 
 	}
+
+	highestIter = max_iter;
 }
 
 void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale, int max_iter) {
 
+	refPointX = x;
+	refPointY = y;
 
-	refx.clear();
-	refx.resize(max_iter);
-	refy.clear();
-	refy.resize(max_iter);
+	std::vector<apcomplex> tempcf;
 
-	for(int i = 0; i < seriesLength; ++i) {
+	cf.resize(seriesLength);
+	tempcf.resize(seriesLength);
+
+	for(int i = 0; i < seriesLength; i++) {
 
 		cf[i] = { 0, 0 };
+		tempcf[i] = { 0, 0 };
 		
 	}
 
-	apcomplex tempcf[seriesLength];
-
-	for (int i = 0; i < seriesLength; ++i) {
-
-		tempcf[i] = { 0, 0 };
-
-	}
-
-	startingIter = max_iter;
+	lowestIter = max_iter;
 	highestIter = 0;
+	perturbationEndIter = 0;
 
 	int samplePoints = 9;
 
@@ -111,38 +110,68 @@ void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale,
 	{
 		for (float _y = -1; _y <= 1; _y += 2.0f / (samplePoints - 1))
 		{
-			calculateStartingIter(x + _x * scale * 0.6, y + _y * scale * 0.6, max_iter);
+			if(abs(_y) < 1 && abs(_x) < 1) {
+				continue;
+			}
+			calculateStartingIter(x + _x * scale * 0.5, y + _y * scale * 0.5, max_iter);
 		}
 	}
+
+	perturbationStartingIter = lowestIter;
+
+	perturbationStartingIter *= 0.99;
 	
 	apcomplex C = { x, y };
 	apcomplex Z = { 0, 0 };
 
-	apfloat xtemp;
+	mpc_t mpc_temp;
+	mpc_init2(mpc_temp, mpc_get_prec(C.backend().data()));
+	
 
 	long iter;
 
 	for (iter = 0; iter < max_iter; iter++) {
 
-		if (iter < startingIter) {
+		if (iter < perturbationStartingIter) {
 
 			for (int i = 0; i < seriesLength; i++) {
+				
+				//tempcf[i] = 2 * Z * cf[i];
+				mpc_mul(mpc_temp, Z.backend().data(), cf[i].backend().data(), MPC_RNDNN);
 
-				tempcf[i] = 2 * Z * cf[i];
+				mpc_mul_si(mpc_temp, mpc_temp, 2, MPC_RNDNN);
+
+				mpc_set(tempcf[i].backend().data(), mpc_temp, MPC_RNDNN);
+
 
 				if(i == 0) {
-					tempcf[i] += 1;
+					//tempcf[i] += 1;
+					mpc_add_si(tempcf[i].backend().data(), tempcf[i].backend().data(), 1, MPC_RNDNN);
 				} else if (i % 2 == 1) {
 
 					for (int j = 0; j < i / 2; j++) {
-						tempcf[i] += 2 * cf[j] * cf[i - j - 1];
+						//tempcf[i] += 2 * cf[j] * cf[i - j - 1];
+						mpc_mul(mpc_temp, cf[j].backend().data(), cf[i - j - 1].backend().data(), MPC_RNDNN);
+
+						mpc_mul_si(mpc_temp, mpc_temp, 2, MPC_RNDNN);
+
+						mpc_add(tempcf[i].backend().data(), tempcf[i].backend().data(), mpc_temp, MPC_RNDNN);
+
 					}
 
-					tempcf[i] += cf[i / 2] * cf[i / 2];
+					//tempcf[i] += cf[i / 2] * cf[i / 2];
+					mpc_sqr(mpc_temp, cf[i / 2].backend().data(), MPC_RNDNN);
+
+					mpc_add(tempcf[i].backend().data(), tempcf[i].backend().data(), mpc_temp, MPC_RNDNN);
 					
 				} else {
 					for (int j = 0; j < i / 2; j++) {
-						tempcf[i] += 2 * cf[j] * cf[i - j - 1];
+						//tempcf[i] += 2 * cf[j] * cf[i - j - 1];
+						mpc_mul(mpc_temp, cf[j].backend().data(), cf[i - j - 1].backend().data(), MPC_RNDNN);
+
+						mpc_mul_si(mpc_temp, mpc_temp, 2, MPC_RNDNN);
+
+						mpc_add(tempcf[i].backend().data(), tempcf[i].backend().data(), mpc_temp, MPC_RNDNN);
 					}
 				}
 
@@ -152,26 +181,42 @@ void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale,
 				cf[i] = tempcf[i];
 			}
 
+			if(iter > 10 && abs(cf[1]) < abs(cf[2]) * scale) {
+				perturbationStartingIter = iter + 1;
+			}
+
 		}
 		else {
 
-			mpc_real(refx[iter].backend().data(), Z.backend().data(), MPFR_RNDN);
-			mpc_imag(refy[iter].backend().data(), Z.backend().data(), MPFR_RNDN);
+			if(refx.size() != max_iter - perturbationStartingIter) {
+				refx.clear();
+				refx.resize(max_iter - perturbationStartingIter);
+				refy.clear();
+				refy.resize(max_iter - perturbationStartingIter);
+			}
+
+			refx[iter - perturbationStartingIter] = mpfr_get_d(Z.real().backend().data(), MPFR_RNDN);
+			refy[iter - perturbationStartingIter] = mpfr_get_d(Z.imag().backend().data(), MPFR_RNDN);
 
 		}
 
-		Z = Z * Z + C;
+		//Z = Z * Z + C;
+		mpc_sqr(mpc_temp, Z.backend().data(), MPC_RNDNN);
+		mpc_add(mpc_temp, mpc_temp, C.backend().data(), MPC_RNDNN);
+		mpc_set(Z.backend().data(), mpc_temp, MPC_RNDNN);
+
+		if(abs(Z).convert_to<double>() > 4) {
+			perturbationEndIter = iter;
+			break;
+		}
 
 	}
 
-	/*std::cout << std::setprecision(std::numeric_limits<apcomplex>::digits10 + 1);
+	if(perturbationEndIter == 0) {
+		perturbationEndIter = iter;
+	}
 
-	for (int i = 0; i <= seriesLength; ++i) {
-
-		std::cout << cf[i].str() << std::endl;
-
-	}*/
-
+	mpc_clear(mpc_temp);
 
 
 
@@ -420,6 +465,8 @@ fractalData BigNumMandelbrot		(const apfloat& x, const apfloat& y, int max_iter,
 			float nu = log(log_zn / log(2.0f)) / log(2.0f);
 
 			nu = 4 - nu;
+
+			results.smoothValue = nu;
 		}
 		else {
 			results.smoothValue = 0.0f;
@@ -460,43 +507,63 @@ fractalData BigNumMandelbrot		(const apfloat& x, const apfloat& y, int max_iter,
 fractalData MandelbrotSAPerturbation(const apfloat& x, const apfloat& y, int max_iter, int flags) {
 #pragma region variables
 
-
+	// Initial delta to the reference point
 	double Dx = x.convert_to<double>();
 	double Dy = y.convert_to<double>();
 
-	apcomplex Dcomplex = {x, y};
+	// Full location of the point
+	apfloat Cx = refPointX + x;
+	apfloat Cy = refPointY + y;
 
+	//  High precision complex number for the final Series Approximation result
+	apcomplex Ecomplex = { 0, 0 };
+
+	// High precision complex number for the Series Approximation power series calculation
+	mpc_t Dcomplex;
+	mpc_init2(Dcomplex, mpfr_get_prec(x.backend().data()));
+	mpc_t temp_Dcomplex;
+	mpc_init2(temp_Dcomplex, mpfr_get_prec(x.backend().data()));
+	mpc_set_fr_fr(Dcomplex, x.backend().data(), y.backend().data(), MPC_RNDNN);
+	mpc_set_ui_ui(temp_Dcomplex, 1, 0, MPC_RNDNN);
+
+	mpc_t temp_mpc;
+	mpc_init2(temp_mpc, mpfr_get_prec(x.backend().data()));
+
+	// Final results of the calculations
 	fractalData results = {};
 
-	apcomplex Ecomplex = {0, 0};
 
-	for(int i = 0; i < seriesLength; i++) {
-
-		Ecomplex += cf[i] * pow(Dcomplex, i + 1);
+	for (int i = 0; i < seriesLength; i++) {
 		
+		//Ecomplex += cf[i] * pow(Dcomplex, i + 1);
+
+		mpc_mul(temp_Dcomplex, temp_Dcomplex, Dcomplex, MPC_RNDNN);
+
+		mpc_mul(temp_mpc, temp_Dcomplex, cf[i].backend().data(), MPC_RNDNN);
+
+		mpc_add(Ecomplex.backend().data(), Ecomplex.backend().data(), temp_mpc, MPC_RNDNN);
+
 	}
 
-	double Ex = Ecomplex.real().convert_to<double>();
-	double Ey = Ecomplex.imag().convert_to<double>();
+	mpc_clear(temp_mpc);
+	mpc_clear(Dcomplex);
+	mpc_clear(temp_Dcomplex);
+
+	// doubles for the real and imaginary part of the difference orbit
+	double Ex = mpfr_get_d(Ecomplex.real().backend().data(), MPFR_RNDN);
+	double Ey = mpfr_get_d(Ecomplex.imag().backend().data(), MPFR_RNDN);
 
 	double xtemp;
 
-	apfloat Zx;
-	apfloat Zy;
+	// doubles for the reference orbit
+	double Zx;
+	double Zy;
 
-	apfloat Fx;
-	apfloat Fy;
+	// doubles for the full orbit (used in effect calculations and escape checking)
+	double Fx;
+	double Fy;
 
-	long iter;
-
-	int check = 3;
-	int checkCounter = 0;
-
-	int update = 10;
-	int updateCounter = 0;
-
-	apfloat hx = 0.0;
-	apfloat hy = 0.0;
+	long iter = perturbationStartingIter;
 
 	int escapeR = 1 << 16;
 
@@ -504,13 +571,13 @@ fractalData MandelbrotSAPerturbation(const apfloat& x, const apfloat& y, int max
 
 #pragma region iteration
 
-	for (iter = startingIter; iter < max_iter; iter++) {
+	for (/*iter*/; iter < perturbationEndIter; iter++) {
 
-		Zx = refx[iter];
-		Zy = refy[iter];
+		Zx = refx[iter - perturbationStartingIter];
+		Zy = refy[iter - perturbationStartingIter];
 
-		xtemp = Dx + Ex * Ex - Ey * Ey + 2 * (Ex * Zx - Ey * Zy).convert_to<double>();
-		Ey = Dy + 2 * Ex * Ey + 2 * (Ex * Zy + Ey * Zx).convert_to<double>();
+		xtemp = 2 * (Zx * Ex - Zy * Ey) + Ex * Ex - Ey * Ey + Dx;
+		Ey = 2 * (Zy * Ex + Zx * Ey) + 2 * Ex * Ey + Dy;
 		Ex = xtemp;
 
 		Fx = Zx + Ex;
@@ -520,30 +587,6 @@ fractalData MandelbrotSAPerturbation(const apfloat& x, const apfloat& y, int max
 			break;
 		}
 
-		if ((flags & DisableTests) == 0) {
-			if (abs(Fx - hx) < eps) {
-				if (abs(Fy - hy) < eps) {
-					results.iterations = iter;
-					results.iterResult = LoopTest;
-					return results;
-				}
-			}
-
-			if (check == checkCounter) {
-				checkCounter = 0;
-
-				if (update == updateCounter) {
-					updateCounter = 0;
-					check *= 2;
-				}
-				updateCounter++;
-
-				hx = Fx;
-				hy = Fy;
-
-			}
-			checkCounter++;
-		}
 
 	}
 
@@ -559,9 +602,8 @@ fractalData MandelbrotSAPerturbation(const apfloat& x, const apfloat& y, int max
 		//Smoothing value calculation
 
 		if ((flags & DisableSmoothing) == 0) {
-
-			//float log_zn = log(Fx * Fx + Fy * Fy).convert_to<float>() / 2.0f;
-			float log_zn = log((Fx * Fx + Fy * Fy).convert_to<float>()) / 2.0f;
+			
+			float log_zn = log(Fx * Fx + Fy * Fy) / 2.0f;
 			
 			float nu = log(log_zn / log(2.0f)) / log(2.0f);
 

@@ -12,11 +12,11 @@
 
 const float pi = 3.14159265359878323f;
 
-typedef boost::multiprecision::mpfr_float_50 apfloat;
+typedef boost::multiprecision::mpfr_float_100 apfloat;
 
 typedef boost::multiprecision::number<boost::multiprecision::gmp_float<10> > deltafloat;
 
-typedef boost::multiprecision::mpc_complex_50 apcomplex;
+typedef boost::multiprecision::mpc_complex_100 apcomplex;
 
 typedef fractalData(*fractalAlgorithmFunction)(const apfloat&, const apfloat&, int, int);
 
@@ -30,10 +30,12 @@ extern int shadowAngle;
 extern float vx;
 extern float vy;
 
-extern std::vector<apfloat> refx;
-extern std::vector<apfloat> refy;
+extern std::vector<double> refx;
+extern std::vector<double> refy;
 
-extern unsigned int startingIter;
+extern unsigned int lowestIter;
+extern unsigned int perturbationEndIter;
+extern unsigned int perturbationStartingIter;
 extern unsigned int highestIter;
 
 enum IterationFlags {
