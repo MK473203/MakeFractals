@@ -612,6 +612,10 @@ int main(int argc, char* argv[]) {
                     mainFractalImage.renderingStatus = NeedUpdate;
                 }
 
+                if(ImGui::Checkbox("Reversed##reverseordercheckbox", &FractalImage::reverseRenderOrder)) {
+	                
+                }
+
                 if (ImGui::Button("Refresh")) {
                     mainFractalImage.renderingStatus = NeedUpdate;
                 }
@@ -935,14 +939,10 @@ int main(int argc, char* argv[]) {
         ImGui::Text((std::to_string((int)ImGui::GetIO().Framerate) + " FPS").c_str());
         ImGui::Text(("Last render took " + std::to_string(mainFractalImage.lastRenderTime) + " ms").c_str());
         ImGui::Text(mainFractalImage.debugInfo().c_str());
-        ImGui::Text(std::to_string(startingIter).c_str());
-        ImGui::Text(std::to_string(translationVector.x).c_str());
-        ImGui::Text(std::to_string(translationVector.y).c_str());
-        ImGui::Text(std::to_string((int)io.DisplaySize.x).c_str());
-        ImGui::Text(std::to_string((int)io.DisplaySize.y).c_str());
-        ImGui::Text(std::to_string(dx).c_str());
-        ImGui::Text(std::to_string(dy).c_str());
-        ImGui::Text(std::to_string(mouseZoomAmount).c_str());
+        ImGui::Text(std::to_string(lowestIter).c_str());
+        ImGui::Text(std::to_string(perturbationStartingIter).c_str());
+        ImGui::Text(std::to_string(perturbationEndIter).c_str());
+        ImGui::Text(std::to_string(highestIter).c_str());
         
 
         static bool showPixelInfoWindow = false;
