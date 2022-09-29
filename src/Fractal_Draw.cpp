@@ -8,6 +8,7 @@ int FractalImage::ColorOffset = 0;
 float FractalImage::shadowStrength = 0.5f; 
 fractalAlgorithmFunction FractalImage::currentAlgorithm = &Mandelbrot;
 indexMapAlgorithm FractalImage::indexMapper = &topToBottom;
+bool FractalImage::reverseRenderOrder = false;
 
 /*
 {"Default",
@@ -112,7 +113,13 @@ void drawThreadTask(FractalImage& fi, int threadIndex) {
 
 		int x, y, i;
 
-		fi.indexMapper(_i / 4, &x, &y, fi.scaledWidth, fi.scaledHeight);
+		if(FractalImage::reverseRenderOrder) {
+			i = fi.scaledWidth * fi.scaledHeight - _i / 4;
+		} else {
+			i = _i / 4;
+		}
+
+		fi.indexMapper(i, &x, &y, fi.scaledWidth, fi.scaledHeight);
 
 		i = (y * fi.scaledWidth + x) * 4;
 
@@ -322,7 +329,7 @@ void FractalImage::updatePixels() {
 
 	renderStartTime = SDL_GetTicks64();
 
-	if (currentAlgorithm == &MandelbrotSAPerturbation && refx[0] != centerX && refy[0] != centerY) {
+	if (currentAlgorithm == &MandelbrotSAPerturbation) {
 		calculateReferenceMandelbrot(centerX, centerY, scale, iterationMax);
 	}
 

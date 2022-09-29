@@ -34,6 +34,7 @@ public:
 	static fractalAlgorithmFunction currentAlgorithm;
 
 	static indexMapAlgorithm indexMapper;
+	static bool reverseRenderOrder;
 
 	static std::vector<colorPalette> defaultPaletteList;
 	static std::vector<colorPalette> paletteList;
