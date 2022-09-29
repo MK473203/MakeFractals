@@ -2,9 +2,7 @@
 
 std::map<const char*, indexMapAlgorithm> indexMapAlgorithms{
 	{"Top to bottom", &topToBottom},
-	{"Bottom to top", &bottomToTop},
 	{"Left to right", &leftToRight},
-	{"Right to left", &rightToLeft},
 	{"Outwards from middle (horizontal)", &outwardsFromMiddleH},
 	{"Outwards from middle (vertical)", &outwardsFromMiddleV},
 	{"Spiral", &spiral},
@@ -104,23 +102,9 @@ void topToBottom(int i, int* x, int* y, int width, int height) {
 
 }
 
-void bottomToTop(int i, int* x, int* y, int width, int height) {
-
-	*x = i % width;
-	*y = i / width;
-
-}
-
 void leftToRight(int i, int* x, int* y, int width, int height) {
 
 	*x = i / height;
-	*y = i % height;
-
-}
-
-void rightToLeft(int i, int* x, int* y, int width, int height) {
-
-	*x = (width - 1) - i / height;
 	*y = i % height;
 
 }
@@ -169,7 +153,7 @@ void spiral(int i, int* x, int* y, int width, int height) {
 
 	int seglength = 1;
 
-	int _x = width / 2 ;
+	int _x = width / 2;
 	int _y = height / 2;
 
 	int k = i;

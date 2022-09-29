@@ -9,12 +9,11 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <vector>
 #include <map>
 #include <SDL.h>
 #include <sstream>
 #include <Windows.h>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_real_distribution.hpp>
 
 #include "imgui.h"
 
