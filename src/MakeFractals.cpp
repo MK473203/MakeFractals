@@ -218,6 +218,7 @@ int main(int argc, char* argv[]) {
     int currentPaletteIndex = 0;
     int paletteComboIndex = 0;
     int algorithmComboIndex = 0;
+    int indexMapperComboIndex = 0;
     bool displayPaletteEditor = false;
     char* paletteNameBuffer = FractalImage::currentPalette.name.data();
 
@@ -562,11 +563,16 @@ int main(int argc, char* argv[]) {
                     mainFractalImage.renderingStatus = NeedUpdate;
                 }
 
+                if (ImGui::InputInt("Approximation terms##satermsinput", &seriesLength, 1, 10, 0 | ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+
+                    mainFractalImage.renderingStatus = NeedUpdate;
+                }
+
                 if (ImGui::Button("Refresh")) {
                     mainFractalImage.renderingStatus = NeedUpdate;
                 }
 
-                if (ImGui::CollapsingHeader("Iteration flags")) {
+                /*if (ImGui::CollapsingHeader("Iteration flags")) {
                     static bool disableTests = false;
                     static bool disableSmooth = false;
                     static bool disableShadow = false;
@@ -582,7 +588,7 @@ int main(int argc, char* argv[]) {
                     if (ImGui::Checkbox("Disable shadow value calculation", &disableShadow)) mainFractalImage.renderingStatus = NeedUpdate;
 
                     mainFractalImage.flags = flags;
-                }
+                }*/
 
 
                 ImGui::EndTabItem();
@@ -606,7 +612,6 @@ int main(int argc, char* argv[]) {
                     mainFractalImage.renderingStatus = NeedUpdate;
                 }
 
-                static int indexMapperComboIndex = 0;
                 if (ImGui::Combo("Order##indexmappercombo", &indexMapperComboIndex, indexMapperComboItems.data(), indexMapperComboItems.size())) {
 	                FractalImage::indexMapper = indexMapAlgorithms[indexMapperComboItems[indexMapperComboIndex]];
                     mainFractalImage.renderingStatus = NeedUpdate;
@@ -913,6 +918,15 @@ int main(int argc, char* argv[]) {
                     {
                         if (i->second == FractalImage::currentAlgorithm) {
                             algorithmComboIndex = comboindex;
+                            break;
+                        }
+                        comboindex++;
+                    }
+                    comboindex = 0;
+                    for (auto i = indexMapAlgorithms.begin(); i != indexMapAlgorithms.end(); i++)
+                    {
+                        if (i->second == FractalImage::indexMapper) {
+                            indexMapperComboIndex = comboindex;
                             break;
                         }
                         comboindex++;
