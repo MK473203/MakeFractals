@@ -176,6 +176,7 @@ public:
 	friend std::ostream& operator<<(std::ostream& os, const FractalImage& fi) {
 
 		int algindex = 0;
+		int indexmapperindex = 0;
 
 		for (auto it = fractalAlgorithms.begin(); it != fractalAlgorithms.end(); it++)
 		{
@@ -183,6 +184,14 @@ public:
 				break;
 			}
 			algindex = (algindex + 1) % fractalAlgorithms.size();
+		}
+
+		for (auto it = indexMapAlgorithms.begin(); it != indexMapAlgorithms.end(); it++)
+		{
+			if (it->second == fi.indexMapper) {
+				break;
+			}
+			indexmapperindex = (indexmapperindex + 1) % indexMapAlgorithms.size();
 		}
 
 		os << std::setprecision(std::numeric_limits<apfloat>::digits10 + 1)
@@ -194,7 +203,9 @@ public:
 			<< fi.shadowFx << '\n'
 			<< fi.ColorOffset << "\n"
 			<< (int)fi.currentColorMapType << "\n"
-			<< algindex;
+			<< algindex << "\n"
+			<< fi.sampleDistance << "\n"
+			<< indexmapperindex;
 		return os;
 	}
 
@@ -202,6 +213,7 @@ public:
 
 		int algindex;
 		int cmtindex;
+		int indexmapperindex;
 
 		is >> std::setprecision(std::numeric_limits<apfloat>::digits10 + 1) >>
 			fi.centerX >>
@@ -212,7 +224,9 @@ public:
 			fi.shadowFx >>
 			fi.ColorOffset >>
 			cmtindex >>
-			algindex;
+			algindex >>
+			fi.sampleDistance >>
+			indexmapperindex;
 
 		fi.currentColorMapType = (colorMapType)cmtindex;
 
@@ -220,6 +234,11 @@ public:
 		std::advance(it, algindex);
 
 		fi.currentAlgorithm = it->second;
+
+		auto it2 = indexMapAlgorithms.begin();
+		std::advance(it2, indexmapperindex);
+
+		fi.indexMapper = it2->second;
 
 		return is;
 	}
