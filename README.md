@@ -6,9 +6,9 @@ An application for exploring and generating images of fractals
 
 |Hotkey|Function|
 |---|---|
-|W A S D|Moving around|
+|W A S D<br>Left mouse button|Moving around|
 |Shift (hold)|Slower movement|
-|* and /|Zooming in/out|
+|* and /<br>Mouse wheel|Zooming in/out|
 |+ and -|Changing iteration limit|
 
 
