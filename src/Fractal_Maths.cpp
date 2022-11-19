@@ -29,7 +29,7 @@ unsigned int lowestIter = 0;
 unsigned int perturbationStartingIter = 0;
 unsigned int perturbationEndIter = 0;
 unsigned int highestIter = 0;
-int seriesLength = 40;
+int seriesLength = 20;
 
 std::vector<apcomplex> cf;
 
@@ -93,7 +93,7 @@ void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale,
 	cf.resize(seriesLength);
 	tempcf.resize(seriesLength);
 
-	for(int i = 0; i < seriesLength; i++) {
+	for(int i = 0; i < cf.size(); i++) {
 
 		cf[i] = { 0, 0 };
 		tempcf[i] = { 0, 0 };
@@ -126,6 +126,10 @@ void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale,
 
 	mpc_t mpc_temp;
 	mpc_init2(mpc_temp, mpc_get_prec(C.backend().data()));
+
+	mpc_t mpc4;
+	mpc_init2(mpc4, mpc_get_prec(C.backend().data()));
+	mpc_set_d_d(mpc4, 4, 0, MPC_RNDNN);
 	
 
 	long iter;
@@ -134,7 +138,7 @@ void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale,
 
 		if (iter < perturbationStartingIter) {
 
-			for (int i = 0; i < seriesLength; i++) {
+			for (int i = 0; i < cf.size(); i++) {
 				
 				//tempcf[i] = 2 * Z * cf[i];
 				mpc_mul(mpc_temp, Z.backend().data(), cf[i].backend().data(), MPC_RNDNN);
@@ -177,11 +181,11 @@ void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale,
 
 			}
 
-			for (int i = 0; i < seriesLength; i++) {
+			for (int i = 0; i < cf.size(); i++) {
 				cf[i] = tempcf[i];
 			}
 
-			if(iter > 10 && abs(cf[1]) < abs(cf[2]) * scale) {
+			if(iter > 10 && abs(cf[cf.size() - 2]) < abs(cf[cf.size() - 1]) * scale) {
 				perturbationStartingIter = iter + 1;
 			}
 
@@ -205,7 +209,7 @@ void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale,
 		mpc_add(mpc_temp, mpc_temp, C.backend().data(), MPC_RNDNN);
 		mpc_set(Z.backend().data(), mpc_temp, MPC_RNDNN);
 
-		if(abs(Z).convert_to<double>() > 4) {
+		if(mpc_cmp_abs(Z.backend().data(), mpc4) > 0) {
 			perturbationEndIter = iter;
 			break;
 		}
@@ -418,31 +422,6 @@ fractalData BigNumMandelbrot		(const apfloat& x, const apfloat& y, int max_iter,
 		if (xx + yy > escapeR) {
 			break;
 		}
-
-		if ((flags & DisableTests) == 0) {
-			if (abs(Zx - hx) < eps) {
-				if (abs(Zy - hy) < eps) {
-					results.iterations = iter;
-					results.iterResult = LoopTest;
-					return results;
-				}
-			}
-
-			if (check == checkCounter) {
-				checkCounter = 0;
-
-				if (update == updateCounter) {
-					updateCounter = 0;
-					check *= 2;
-				}
-				updateCounter++;
-
-				hx = Zx;
-				hy = Zy;
-
-			}
-			checkCounter++;
-		}
 	}
 
 	results.iterations = iter;
@@ -484,10 +463,8 @@ fractalData BigNumMandelbrot		(const apfloat& x, const apfloat& y, int max_iter,
 
 			float t = (ux / absu).convert_to<float>() * vx + (uy / absu).convert_to<float>() * vy + h2;
 			t = t / (1 + h2);
-			if (t < 0) t = 0;
-			if (t > 1) t = 1;
 
-			results.shadowValue = t;
+			results.shadowValue = std::clamp(t, 0.0f, 1.0f);
 		}
 		else {
 			results.shadowValue = 0.0f;
@@ -533,7 +510,7 @@ fractalData MandelbrotSAPerturbation(const apfloat& x, const apfloat& y, int max
 	fractalData results = {};
 
 
-	for (int i = 0; i < seriesLength; i++) {
+	for (int i = 0; i < cf.size(); i++) {
 		
 		//Ecomplex += cf[i] * pow(Dcomplex, i + 1);
 
@@ -543,18 +520,24 @@ fractalData MandelbrotSAPerturbation(const apfloat& x, const apfloat& y, int max
 
 		mpc_add(Ecomplex.backend().data(), Ecomplex.backend().data(), temp_mpc, MPC_RNDNN);
 
+
+
 	}
 
 	mpc_clear(temp_mpc);
 	mpc_clear(Dcomplex);
 	mpc_clear(temp_Dcomplex);
 
+	double derx = 1;
+	double dery = 0;
+	double derxtemp;
+
 	// doubles for the real and imaginary part of the difference orbit
 	double Ex = mpfr_get_d(Ecomplex.real().backend().data(), MPFR_RNDN);
 	double Ey = mpfr_get_d(Ecomplex.imag().backend().data(), MPFR_RNDN);
 
 	double xtemp;
-
+	
 	// doubles for the reference orbit
 	double Zx;
 	double Zy;
@@ -582,6 +565,10 @@ fractalData MandelbrotSAPerturbation(const apfloat& x, const apfloat& y, int max
 
 		Fx = Zx + Ex;
 		Fy = Zy + Ey;
+		
+		derxtemp = 2 * (derx * Fx - dery * Fy) + 1;
+		dery = 2 * (derx * Fy + dery * Fx);
+		derx = derxtemp;
 
 		if (Fx * Fx + Fy * Fy > escapeR) {
 			break;
@@ -615,6 +602,25 @@ fractalData MandelbrotSAPerturbation(const apfloat& x, const apfloat& y, int max
 		else {
 			results.smoothValue = 0.0f;
 		}
+
+
+		//Shadow calculation
+		if ((flags & DisableShadowCalculation) == 0) {
+
+			float ux = (Zx * derx + Zy * dery) / (derx * derx + dery * dery);
+			float uy = (Zy * derx - Zx * dery) / (derx * derx + dery * dery);
+
+			float absu = sqrt(ux * ux + uy * uy);
+
+			float t = ux / absu * vx + uy / absu * vy + h2;
+			t = t / (1 + h2);
+
+			results.shadowValue = std::clamp(t, 0.0f, 1.0f);
+		}
+		else {
+			results.shadowValue = 0.0f;
+		}
+
 	}
 	else {
 		results.iterResult = MaxIter;

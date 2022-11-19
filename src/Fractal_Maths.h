@@ -37,6 +37,7 @@ extern unsigned int lowestIter;
 extern unsigned int perturbationEndIter;
 extern unsigned int perturbationStartingIter;
 extern unsigned int highestIter;
+extern int seriesLength;
 
 enum IterationFlags {
 	None						= 0,

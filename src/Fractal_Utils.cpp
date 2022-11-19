@@ -5,7 +5,7 @@ std::map<const char*, indexMapAlgorithm> indexMapAlgorithms{
 	{"Left to right", &leftToRight},
 	{"Outwards from middle (horizontal)", &outwardsFromMiddleH},
 	{"Outwards from middle (vertical)", &outwardsFromMiddleV},
-	{"Spiral", &spiral},
+	//{"Spiral", &spiral},
 };
 
 void HelpMarker(const char* desc) {
@@ -134,57 +134,5 @@ void outwardsFromMiddleV(int i, int* x, int* y, int width, int height) {
 	}
 
 	*x = i % width;
-
-}
-
-void spiral(int i, int* x, int* y, int width, int height) {
-
-	if (i >= std::min(height * (height + 1-(height % 2)), width * width)) {
-		if (height < width) {
-			return outwardsFromMiddleH(i, x, y, width, height);
-		}
-		else {
-			return outwardsFromMiddleV(i, x, y, width, height);
-		}
-	}
-
-	int dx = 0;
-	int dy = 1;
-
-	int seglength = 1;
-
-	int _x = width / 2;
-	int _y = height / 2;
-
-	int k = i;
-
-	while (k > 0)
-	{
-
-		_x += dx * seglength;
-		_y += dy * seglength;
-
-		if (_y >= height || _y < 0) {
-			return outwardsFromMiddleH(i, x, y, width, height);
-		} else if (_x >= width || _x < 0) {
-			return outwardsFromMiddleV(i, x, y, width, height);
-		}
-
-		k -= seglength;
-
-		if (dy == 0) {
-			seglength++;
-		}
-
-		seglength = std::min(seglength, k);
-
-		int temp = dx;
-		dx = -dy;
-		dy = temp;
-
-	}
-
-	*x = _x;
-	*y = _y;
 
 }
