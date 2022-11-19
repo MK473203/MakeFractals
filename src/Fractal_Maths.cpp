@@ -539,12 +539,12 @@ fractalData MandelbrotSAPerturbation(const apfloat& x, const apfloat& y, int max
 	double xtemp;
 	
 	// doubles for the reference orbit
-	double Zx;
-	double Zy;
+	double Zx = 0;
+	double Zy = 0;
 
 	// doubles for the full orbit (used in effect calculations and escape checking)
-	double Fx;
-	double Fy;
+	double Fx = 0;
+	double Fy = 0;
 
 	long iter = perturbationStartingIter;
 
