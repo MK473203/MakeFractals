@@ -46,5 +46,6 @@ add_executable(MakeFractals ${SRC_FILES})
 
 add_custom_command(TARGET MakeFractals POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${PROJECT_SOURCE_DIR}/extlibs/sdl2/SDL2.dll"
+        $<$<CONFIG:RELEASE>:"${PROJECT_SOURCE_DIR}/extlibs/sdl2/SDL2.dll">
+        $<$<CONFIG:DEBUG,RELWITHDEBINFO>:"${PROJECT_SOURCE_DIR}/extlibs/sdl2/SDL2d.dll">
         $<TARGET_FILE_DIR:MakeFractals>)
