@@ -21,6 +21,8 @@ typedef void(*indexMapAlgorithm)(int, int*, int*, int, int);
 
 extern std::map<const char*, indexMapAlgorithm> indexMapAlgorithms;
 
+extern std::string prefPath;
+
 enum colorMapType {
 	LinearCyclic = 0,
 	ExponentialCyclic,

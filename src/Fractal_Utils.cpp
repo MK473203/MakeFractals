@@ -1,5 +1,7 @@
 #include "Fractal_Utils.h"
 
+std::string prefPath = SDL_GetPrefPath("MakeFractals", "MakeFractals");
+
 std::map<const char*, indexMapAlgorithm> indexMapAlgorithms{
 	{"Top to bottom", &topToBottom},
 	{"Left to right", &leftToRight},
