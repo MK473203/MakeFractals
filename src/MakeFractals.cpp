@@ -140,6 +140,9 @@ int main(int argc, char* argv[]) {
     //io.ConfigViewportsNoAutoMerge = true;
     //io.ConfigViewportsNoTaskBarIcon = true;
 
+    std::string iniPath = prefPath + "imgui.ini";
+    io.IniFilename = iniPath.c_str();
+
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
     //ImGui::StyleColorsLight();
@@ -244,12 +247,14 @@ int main(int argc, char* argv[]) {
         indexMapperComboItems.push_back(it->first);
     }
 
+    std::string savePath = prefPath + "save.txt";
 
-    bool done = false;
     ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
     Uint64 now = SDL_GetPerformanceCounter();
     Uint64 last = 0;
     double deltatime = 0;
+
+    bool done = false;
 
     while (!done) {
 
@@ -888,10 +893,11 @@ int main(int argc, char* argv[]) {
 
                     mainFractalImage.savePaletteList();
 
-                    std::ofstream ofs("save.txt");
-
-                    ofs << mainFractalImage << '\n';
-                    ofs << currentPaletteIndex;
+                    std::ofstream ofs( savePath);
+                    if(ofs.good()) {
+                        ofs << mainFractalImage << '\n';
+                        ofs << currentPaletteIndex;
+                    }
 
                     ofs.close();
                 }
@@ -902,11 +908,11 @@ int main(int argc, char* argv[]) {
 
                     mainFractalImage.loadPaletteList();
 
-                    std::ifstream ifs("save.txt");
-
-                    ifs >> mainFractalImage;
-                    ifs >> currentPaletteIndex;
-
+                    std::ifstream ifs(savePath);
+                    if(ifs.good()) {
+                        ifs >> mainFractalImage;
+                        ifs >> currentPaletteIndex;
+                    }
                     ifs.close();
 
                     FractalImage::currentPalette = FractalImage::paletteList[currentPaletteIndex];
