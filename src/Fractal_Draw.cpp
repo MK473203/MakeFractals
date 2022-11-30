@@ -509,23 +509,28 @@ std::string FractalImage::debugInfo() {
 }
 
 void FractalImage::savePaletteList() {
-	std::ofstream ofs("palette-list.txt");
 
-	for (int i = 0; i < paletteList.size(); i++)
-	{
-		colorPalette temp = paletteList[i];
+	std::string listPath = prefPath + "palette-list.txt";
 
-		ofs << temp.name << '\n';
+	std::ofstream ofs(listPath);
 
-		for (int j = 0; j < temp.paletteColors.size(); j++)
+	if (ofs.good()) {
+		for (int i = 0; i < paletteList.size(); i++)
 		{
-			uint32_t tempInt = (uint32_t)255 + ((uint32_t)temp.paletteColors[j].r << 8) + ((uint32_t)temp.paletteColors[j].g << 16) + ((uint32_t)temp.paletteColors[j].b << 24);
-			ofs << tempInt << '\n';
-		}
-		ofs << 0 << '\n';
-	}
+			colorPalette temp = paletteList[i];
 
-	ofs << "\0\0\0";
+			ofs << temp.name << '\n';
+
+			for (int j = 0; j < temp.paletteColors.size(); j++)
+			{
+				uint32_t tempInt = (uint32_t)255 + ((uint32_t)temp.paletteColors[j].r << 8) + ((uint32_t)temp.paletteColors[j].g << 16) + ((uint32_t)temp.paletteColors[j].b << 24);
+				ofs << tempInt << '\n';
+			}
+			ofs << 0 << '\n';
+		}
+
+		ofs << "\0\0\0";
+	}
 
 	ofs.close();
 }
@@ -534,41 +539,45 @@ void FractalImage::loadPaletteList() {
 
 	paletteList.clear();
 
-	std::ifstream ifs("palette-list.txt");
+	std::string listPath = prefPath + "palette-list.txt";
 
-	unsigned char tempr;
-	unsigned char tempg;
-	unsigned char tempb;
-	uint32_t tempInt;
+	std::ifstream ifs(listPath);
 
-	while (true)
-	{
-		colorPalette tempPalette;
-		std::string tempString;
-
-		ifs >> std::ws;
-
-		std::getline(ifs, tempString);
-
-		if (tempString == "\0\0\0") break;
-
-		tempPalette.name = tempString;
+	if (ifs.good()) {
+		unsigned char tempr;
+		unsigned char tempg;
+		unsigned char tempb;
+		uint32_t tempInt;
 
 		while (true)
 		{
-			ifs >> tempInt;
-			if (tempInt == 0) break;
-				
-			tempr = (tempInt >> 8) & 255;
-			tempg = (tempInt >> 16) & 255;
-			tempb = (tempInt >> 24) & 255;
+			colorPalette tempPalette;
+			std::string tempString;
+
+			ifs >> std::ws;
+
+			std::getline(ifs, tempString);
+
+			if (tempString == "\0\0\0") break;
+
+			tempPalette.name = tempString;
+
+			while (true)
+			{
+				ifs >> tempInt;
+				if (tempInt == 0) break;
+
+				tempr = (tempInt >> 8) & 255;
+				tempg = (tempInt >> 16) & 255;
+				tempb = (tempInt >> 24) & 255;
 
 
-			tempPalette.paletteColors.push_back({tempr, tempg, tempb});
+				tempPalette.paletteColors.push_back({ tempr, tempg, tempb });
 
+			}
+
+			paletteList.push_back(tempPalette);
 		}
-
-		paletteList.push_back(tempPalette);
 	}
 
 	ifs.close();
