@@ -3,15 +3,3 @@ build/
 
 # Visual Studio cache/options directory
 .vs/
-
-# Images folder
-images/
-
-# Files created by the program
-save.txt
-palette-list.txt
-imgui.ini
-
-# dlls
-*.dll
-/data.dat
