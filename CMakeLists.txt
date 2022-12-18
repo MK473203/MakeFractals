@@ -5,8 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 set(SDL2_DIR "${CMAKE_SOURCE_DIR}/../SDL/cmake")
-set(SDL_IMAGE_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/../SDL_image")
-set(SDL_IMAGE_LIBRARY "${CMAKE_SOURCE_DIR}/../SDL_image/build")
 set(Boost_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/../boost")
 set(GLM_DIR "${CMAKE_SOURCE_DIR}/../GLM/cmake/glm")
 find_package(SDL2 REQUIRED)
@@ -27,20 +25,15 @@ set(SRC_FILES ${IMGUI_SRC} ${MAIN_SRC} "${CMAKE_SOURCE_DIR}/extlibs/glad/glad.c"
 
 include_directories("${Boost_INCLUDE_DIRS}" 
                     "${SDL2_INCLUDE_DIRS}"
-                    "${SDL_IMAGE_INCLUDE_DIRS}"
                     "${GLM_INCLUDE_DIRS}"
                     "${EXT_INCLUDES}"
                     "${MAIN_INCLUDES}")
 
 link_directories("${EXT_LIBS}")
 
-set(LIBS mpc mpfr gmp ${SDL2_LIBRARIES} ${SDL_LIBRARIES})
+set(LIBS mpc mpfr gmp ${SDL2_LIBRARIES} ${SDL_LIBRARIES} SDL2_image)
 
 link_libraries(${LIBS})
-
-if(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
-    #add_compile_options(/NODEFAULTLIB:libcmt.lib -fexceptions)
-endif()
 
 add_executable(MakeFractals ${SRC_FILES})
 

@@ -610,16 +610,9 @@ void FractalImage::saveToImage(const char* relativePath) {
 
 	SDL_Surface* tempSurface = SDL_CreateRGBSurfaceWithFormatFrom(pixelArray.data(), scaledWidth, scaledHeight, 32, 4 * scaledWidth, SDL_PIXELFORMAT_RGBA32);
 
-	/*if (IMG_SavePNG(tempSurface, filePath.string().c_str()) == 0) {
+	if (IMG_SavePNG(tempSurface, filePath.string().c_str()) == 0) {
 		renderingStatus = ImageSaved;
-	}*/
-
-	/*
-	sf::Image image;
-	image.create(width, height, pixelArray.data());
-	if (image.saveToFile(filePath)) {
-		renderingStatus = ImageSaved;
-	}*/
+	}
 
 
 
