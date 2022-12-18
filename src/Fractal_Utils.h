@@ -16,6 +16,8 @@
 #include <Windows.h>
 
 #include "imgui.h"
+#include <SDL.h>
+#include <SDL_image.h>
 
 typedef void(*indexMapAlgorithm)(int, int*, int*, int, int);
 
@@ -71,5 +73,7 @@ void outwardsFromMiddleH(int i, int* x, int* y, int width, int height);
 void outwardsFromMiddleV(int i, int* x, int* y, int width, int height);
 
 void spiral(int i, int* x, int* y, int width, int height);
+
+void SDL_FlipSurface(SDL_Surface* surface);
 
 #endif // !FUTILS
