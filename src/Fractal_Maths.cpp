@@ -6,8 +6,8 @@
 
 std::map<const char*, fractalAlgorithmFunction> fractalAlgorithms {
 	{"Quick Mandelbrot", &Mandelbrot},
-	{"Deep Mandelbrot (brute force)", &BigNumMandelbrot},
-	{"Deep Mandelbrot (perturbation & series approximation)", &MandelbrotSAPerturbation},
+	{"Deep Mandelbrot (brute force, SLOW)", &BigNumMandelbrot},
+	{"Deep Mandelbrot (perturbation & series approximation, WIP)", &MandelbrotSAPerturbation},
 	{"EvenOddMandelbrot", &EvenOddMandelbrot},
 	{"Burning Ship", &BurningShip}
 };
