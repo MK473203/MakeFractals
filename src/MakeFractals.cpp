@@ -247,7 +247,7 @@ int main(int argc, char* argv[]) {
     int renderHeight = 1080;
     int renderms = 1;
     int keyFrameCounter = 1;
-    apfloat startingScale;
+    deltafloat startingScale;
 
     // Automatically fetch items for imgui drop down lists
     std::vector<const char*> algorithmComboItems;
@@ -648,7 +648,7 @@ int main(int argc, char* argv[]) {
                 }
 
                 if (ImGui::Button("Quick render")) {
-                    mainFractalImage.saveToImage((prefPath + "images/").c_str());
+                    mainFractalImage.saveToImage((prefPath + "images/").c_str(), false);
                     mainFractalImage.renderingStatus = Ready;
                 }
                 ImGui::SameLine();
@@ -746,7 +746,7 @@ int main(int argc, char* argv[]) {
                         }
                         else {
                             std::thread t([&renderingFractalImage] {
-                                renderingFractalImage.saveToImage((prefPath + "images/").c_str());
+                                renderingFractalImage.saveToImage((prefPath + "images/").c_str(), false);
                                 });
                             t.detach();
                         }
