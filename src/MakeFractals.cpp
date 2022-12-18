@@ -648,13 +648,15 @@ int main(int argc, char* argv[]) {
                 }
 
                 if (ImGui::Button("Quick render")) {
-                    mainFractalImage.saveToImage("images/");
+                    mainFractalImage.saveToImage((prefPath + "images/").c_str());
                     mainFractalImage.renderingStatus = Ready;
                 }
                 ImGui::SameLine();
                 if (ImGui::Button("Advanced")) {
                     renderingFractalImage = FractalImage(mainFractalImage);
-                    FractalImage::indexMapper = &topToBottom;
+                    renderingFractalImage.width = 1280;
+                    renderingFractalImage.height = 720;
+                    renderingFractalImage.renderingStatus = Empty;
                     keyFrameCounter = 1;
                     startingScale = renderingFractalImage.scale;
                     ImGui::OpenPopup("Render");
@@ -676,7 +678,7 @@ int main(int argc, char* argv[]) {
                     ImGui::BeginGroup();
                     ImGui::Text("Image resolution");
 
-                    static int resolutionComboIndex = 0;
+                    static int resolutionComboIndex = 1;
                     if (ImGui::Combo("Presets", &resolutionComboIndex, "480p\000720p\0001080p\0001440p\0004k\0008k\000\000")) {
                         switch (resolutionComboIndex)
                         {
@@ -732,6 +734,7 @@ int main(int argc, char* argv[]) {
 
                     if (ImGui::Button("Render")) {
                         renderingFractalImage.sampleDistance = -renderms;
+                        FractalImage::indexMapper = &topToBottom;
 
                         if (renderType != 0) {
 
@@ -743,7 +746,7 @@ int main(int argc, char* argv[]) {
                         }
                         else {
                             std::thread t([&renderingFractalImage] {
-                                renderingFractalImage.saveToImage("images/");
+                                renderingFractalImage.saveToImage((prefPath + "images/").c_str());
                                 });
                             t.detach();
                         }
@@ -782,6 +785,7 @@ int main(int argc, char* argv[]) {
                         renderingFractalImage.pixelArray.clear();
                         renderingFractalImage.dataArray.clear();
                         ImGui::CloseCurrentPopup();
+                        FractalImage::indexMapper = indexMapAlgorithms[indexMapperComboItems[indexMapperComboIndex]];
                     }
 
                     ImGui::EndPopup();
