@@ -583,7 +583,7 @@ void FractalImage::loadPaletteList() {
 	ifs.close();
 }
 
-void FractalImage::saveToImage(const char* absolutePath) {
+void FractalImage::saveToImage(const char* absolutePath, bool overwriteImages) {
 	int nameindex = 0;
 
 	std::filesystem::path filePath = absolutePath;
@@ -643,16 +643,19 @@ void FractalImage::generateKeyframes(int& keyFrameCounter, deltafloat finalScale
 
 	int keyFrameAmount = floor(log(tempScale / finalScale) / log(zoomIncrement)).convert_to<int>();
 
-	scale /= zoomIncrement;
+	//scale /= zoomIncrement;
 
-	std::filesystem::path filePath = std::filesystem::current_path() / "images/zoomframes/";
+	std::filesystem::path filePath = prefPath + "images/zoomframes/";
 
 	if (!std::filesystem::exists(filePath)) {
+		std::filesystem::create_directory(filePath);
+	} else {
+		std::filesystem::remove_all(filePath);
 		std::filesystem::create_directory(filePath);
 	}
 
 	while (scale < finalScale) {
-		saveToImage("images/zoomframes/");
+		saveToImage((prefPath + "images/zoomframes/").c_str(), true);
 
 		renderingStatus = Empty;
 
