@@ -14,12 +14,17 @@ int main(int argc, char* argv[]) {
 
     }
 
+#pragma region Initializations
+
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
     {
         printf("Error: %s\n", SDL_GetError());
         return -1;
     }
+
+
+#pragma region OpenGL
 
     // Decide GL+GLSL versions
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -129,6 +134,10 @@ int main(int argc, char* argv[]) {
     glDeleteShader(screenVertexShader);
     glDeleteShader(screenFragmentShader);
 
+#pragma endregion
+
+#pragma region ImGui
+
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -159,12 +168,16 @@ int main(int argc, char* argv[]) {
     ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
+#pragma endregion
+
     // Initialize the main fractal image
     FractalImage mainFractalImage(SDL_GetWindowSurface(window)->w, SDL_GetWindowSurface(window)->h);
     //mainFractalImage.loadPaletteList();
     mainFractalImage.generatePalette();
     calculateReferenceMandelbrot(mainFractalImage.centerX, mainFractalImage.centerY, mainFractalImage.scale, mainFractalImage.iterationMax);
     FractalImage renderingFractalImage = FractalImage();
+
+#pragma region OpenGL_textures
 
     // fractalTexture shows the current rendering progress
     unsigned int fractalTexture;
@@ -202,6 +215,8 @@ int main(int argc, char* argv[]) {
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
+
+#pragma endregion
 
     glm::vec3 translationVector = glm::vec3(0, 0, 0);
     float matrixScale = 100.0f;
@@ -253,6 +268,8 @@ int main(int argc, char* argv[]) {
     Uint64 now = SDL_GetPerformanceCounter();
     Uint64 last = 0;
     double deltatime = 0;
+
+#pragma endregion
 
     bool done = false;
 
@@ -959,10 +976,10 @@ int main(int argc, char* argv[]) {
         ImGui::Text((std::to_string((int)ImGui::GetIO().Framerate) + " FPS").c_str());
         ImGui::Text(("Last render took " + std::to_string(mainFractalImage.lastRenderTime) + " ms").c_str());
         ImGui::Text(mainFractalImage.debugInfo().c_str());
-        ImGui::Text(std::to_string(lowestIter).c_str());
-        ImGui::Text(std::to_string(perturbationStartingIter).c_str());
-        ImGui::Text(std::to_string(perturbationEndIter).c_str());
-        ImGui::Text(std::to_string(highestIter).c_str());
+        ImGui::Text(("Lowest iter: " + std::to_string(lowestIter)).c_str());
+        ImGui::Text(("SA Starting iter: " + std::to_string(perturbationStartingIter)).c_str());
+        ImGui::Text(("Highest reference iter: " + std::to_string(perturbationEndIter)).c_str());
+        ImGui::Text(("Highest iter: " + std::to_string(highestIter)).c_str());
         
 
         static bool showPixelInfoWindow = false;
