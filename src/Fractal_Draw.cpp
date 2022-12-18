@@ -583,10 +583,10 @@ void FractalImage::loadPaletteList() {
 	ifs.close();
 }
 
-void FractalImage::saveToImage(const char* relativePath) {
+void FractalImage::saveToImage(const char* absolutePath) {
 	int nameindex = 0;
 
-	std::filesystem::path filePath = std::filesystem::current_path() / relativePath;
+	std::filesystem::path filePath = absolutePath;
 	filePath.replace_filename(std::to_string(nameindex));
 
 	if (!std::filesystem::exists(filePath.parent_path())) {
@@ -610,11 +610,16 @@ void FractalImage::saveToImage(const char* relativePath) {
 
 	SDL_Surface* tempSurface = SDL_CreateRGBSurfaceWithFormatFrom(pixelArray.data(), scaledWidth, scaledHeight, 32, 4 * scaledWidth, SDL_PIXELFORMAT_RGBA32);
 
+	// OpenGL textures are flipped vertically compared to SDL surfaces, so we temporarily flip the surface in order to get the correct image.
+	SDL_FlipSurface(tempSurface);
+
 	if (IMG_SavePNG(tempSurface, filePath.string().c_str()) == 0) {
 		renderingStatus = ImageSaved;
 	}
 
+	SDL_FlipSurface(tempSurface);
 
+	SDL_FreeSurface(tempSurface);
 
 }
 
@@ -632,7 +637,7 @@ void FractalImage::generateZoomVideo(int& keyFrameCounter, deltafloat finalScale
 
 void FractalImage::generateKeyframes(int& keyFrameCounter, deltafloat finalScale) {
 
-	/*float zoomIncrement = 0.5;
+	float zoomIncrement = 0.5;
 
 	deltafloat tempScale = scale;
 
@@ -654,7 +659,7 @@ void FractalImage::generateKeyframes(int& keyFrameCounter, deltafloat finalScale
 		keyFrameCounter++;
 
 		scale /= zoomIncrement;
-	}*/
+	}
 
 
 }

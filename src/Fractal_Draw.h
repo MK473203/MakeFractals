@@ -159,7 +159,7 @@ public:
 
 	void generateHistogram();
 
-	void saveToImage(const char* relativePath);
+	void saveToImage(const char* absolutePath);
 
 	void generateZoomVideo(int& keyFrameCounter, deltafloat finalScale = 3.0);
 
