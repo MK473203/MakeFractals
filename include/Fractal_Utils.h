@@ -11,13 +11,11 @@
 #include <limits>
 #include <vector>
 #include <map>
-#include <SDL.h>
 #include <sstream>
 #include <Windows.h>
 
 #include "imgui.h"
 #include <SDL.h>
-#include <SDL_image.h>
 
 typedef void(*indexMapAlgorithm)(int, int*, int*, int, int);
 
