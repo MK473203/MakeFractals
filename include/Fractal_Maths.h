@@ -39,6 +39,8 @@ extern unsigned int perturbationStartingIter;
 extern unsigned int highestIter;
 extern int seriesLength;
 
+extern bool useAutomaticSeriesApproximation;
+
 enum IterationFlags {
 	None						= 0,
 	DisableTests				= 1 << 0,

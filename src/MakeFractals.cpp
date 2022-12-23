@@ -571,7 +571,7 @@ int main(int argc, char* argv[]) {
             if (ImGui::BeginTabItem("Algorithm")) {
 
                 if (ImGui::InputInt("Iterations", &mainFractalImage.iterationMax, pow(10, floor(log10(mainFractalImage.iterationMax)) - 1), 0, 0 | ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
-                    if (mainFractalImage.iterationMax > 1000000 || mainFractalImage.iterationMax < 10) {
+                    if (mainFractalImage.iterationMax > 1000000000 || mainFractalImage.iterationMax < 10) {
                         mainFractalImage.iterationMax = std::max(std::min(mainFractalImage.iterationMax, 1000000), 10);
                     }
                     else {
@@ -585,9 +585,24 @@ int main(int argc, char* argv[]) {
                     mainFractalImage.renderingStatus = NeedUpdate;
                 }
 
-                if (ImGui::InputInt("Approximation terms##satermsinput", &seriesLength, 1, 10, 0 | ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+                if (FractalImage::currentAlgorithm == &MandelbrotSAPerturbation) {
 
-                    mainFractalImage.renderingStatus = NeedUpdate;
+                    ImGui::Checkbox("Automate SA", &useAutomaticSeriesApproximation);
+
+                    ImGui::BeginDisabled(useAutomaticSeriesApproximation);
+
+                    if (ImGui::InputInt("Approximation terms##satermsinput", &seriesLength, 1, 10, 0 | ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+
+                        mainFractalImage.renderingStatus = NeedUpdate;
+                    }
+
+                    if (ImGui::InputInt("Approximation Iterations##saitersinput", (int*)&perturbationStartingIter, 1, 10, 0 | ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+
+                        mainFractalImage.renderingStatus = NeedUpdate;
+                    }
+
+                    ImGui::EndDisabled();
+
                 }
 
                 if (ImGui::Button("Refresh")) {

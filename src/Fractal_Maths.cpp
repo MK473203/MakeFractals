@@ -31,6 +31,8 @@ unsigned int perturbationEndIter = 0;
 unsigned int highestIter = 0;
 int seriesLength = 20;
 
+bool useAutomaticSeriesApproximation = true;
+
 std::vector<apcomplex> cf;
 
 fractalData FractalAlgorithm(fractalAlgorithmFunction algorithm, int _x, int _y, int Width, int Height, int max_iter, 
@@ -103,23 +105,27 @@ void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale,
 	lowestIter = max_iter;
 	highestIter = 0;
 	perturbationEndIter = 0;
-
+	
 	int samplePoints = 9;
 
 	for (float _x = -1; _x <= 1; _x += 2.0f / (samplePoints - 1))
 	{
 		for (float _y = -1; _y <= 1; _y += 2.0f / (samplePoints - 1))
 		{
-			if(abs(_y) < 1 && abs(_x) < 1) {
+			if (abs(_y) < 1 && abs(_x) < 1) {
 				continue;
 			}
 			calculateStartingIter(x + _x * scale * 0.5, y + _y * scale * 0.5, max_iter);
 		}
 	}
 
-	perturbationStartingIter = lowestIter;
+	if (useAutomaticSeriesApproximation) {
 
-	perturbationStartingIter *= 0.99;
+		perturbationStartingIter = lowestIter;
+
+		perturbationStartingIter *= 0.99;
+
+	}
 	
 	apcomplex C = { x, y };
 	apcomplex Z = { 0, 0 };
@@ -185,7 +191,7 @@ void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale,
 				cf[i] = tempcf[i];
 			}
 
-			if(iter > 10 && abs(cf[cf.size() - 2]) < abs(cf[cf.size() - 1]) * scale) {
+			if(useAutomaticSeriesApproximation && iter > 10 && abs(cf[cf.size() - 2]) < abs(cf[cf.size() - 1]) * scale) {
 				perturbationStartingIter = iter + 1;
 			}
 
