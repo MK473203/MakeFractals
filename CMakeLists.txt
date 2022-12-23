@@ -20,7 +20,7 @@ find_package(OpenGL REQUIRED)
 find_package(GLM REQUIRED)
 
 
-add_executable(MakeFractals)
+add_executable(MakeFractals WIN32)
 
 target_include_directories(MakeFractals PRIVATE "${CMAKE_SOURCE_DIR}/include" ${Boost_INCLUDE_DIR} ${SDL2_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS})
 
