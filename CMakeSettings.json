@@ -54,6 +54,19 @@
           "type": "STRING"
         }
       ]
+    },
+    {
+      "name": "WSL-GCC-Release",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "buildRoot": "${projectDir}\\build\\${name}",
+      "installRoot": "${projectDir}\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "linux_x64" ],
+      "wslPath": "Ubuntu",
+      "cmakeExecutable": "//wsl.localhost/Ubuntu/usr/local/bin/cmake"
     }
   ]
 }

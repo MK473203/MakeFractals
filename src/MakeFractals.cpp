@@ -6,14 +6,6 @@
 
 int main(int argc, char* argv[]) {
 
-    if (argc > 1) {
-
-        handleConsoleParams(argc, argv);
-
-        return 0;
-
-    }
-
 #pragma region Initializations
 
     // Initialize SDL
@@ -47,7 +39,7 @@ int main(int argc, char* argv[]) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 #endif
 
     // Create window with graphics context
@@ -55,7 +47,7 @@ int main(int argc, char* argv[]) {
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-    SDL_Window* window = SDL_CreateWindow("Fractal Remake", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 960, window_flags);
+    SDL_Window* window = SDL_CreateWindow("MakeFractals", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 960, window_flags);
     SDL_GLContext gl_context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl_context);
     SDL_GL_SetSwapInterval(1); // Enable vsync
@@ -784,7 +776,7 @@ int main(int argc, char* argv[]) {
                     if (renderingFractalImage.renderingStatus == Rendering) {
                         if (renderType != 0) {
                             char buf[32];
-                            sprintf_s(buf, "keyframe %d/%d: %.0f%%", keyFrameCounter, keyFrameAmount, renderingFractalImage.renderProgress * 100 + 0.01f);
+                        	snprintf(buf, sizeof(buf), "keyframe %d/%d: %.0f%%", keyFrameCounter, keyFrameAmount, renderingFractalImage.renderProgress * 100 + 0.01f);
                             ImGui::ProgressBar(renderingFractalImage.renderProgress, ImVec2(-FLT_MIN, 0), buf);
                         }
                         else {
@@ -1188,8 +1180,8 @@ int main(int argc, char* argv[]) {
             {
                 ImGui::SameLine();
 
-                char temp[24];
-                sprintf_s(temp, "color##palettecolor%d", i);
+                char temp[32];
+                snprintf(temp, sizeof(temp), "color##palettecolor%d", i);
                 if (sdlColorEdit3(temp, &FractalImage::currentPalette.paletteColors[i], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_InputRGB)) {
                     mainFractalImage.generatePalette();
                     mainFractalImage.refreshVisuals();

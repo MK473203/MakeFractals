@@ -12,7 +12,6 @@
 #include <vector>
 #include <map>
 #include <sstream>
-#include <Windows.h>
 
 #include "imgui.h"
 #include <SDL.h>

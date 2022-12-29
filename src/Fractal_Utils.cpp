@@ -34,69 +34,6 @@ bool sdlColorEdit3(const char* label, SDL_Color* col, ImGuiColorEditFlags flags)
 
 }
 
-void handleConsoleParams(int argc, char* argv[]) {
-
-	if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
-		return;
-	}
-
-	FILE* fDummy;
-	freopen_s(&fDummy, "CONOUT$", "w", stdout);
-	freopen_s(&fDummy, "CONOUT$", "w", stderr);
-	freopen_s(&fDummy, "CONIN$", "r", stdin);
-	std::cout.clear();
-	std::clog.clear();
-	std::cerr.clear();
-	std::cin.clear();
-
-	std::string arg1 = std::string(argv[1]);
-
-	if (arg1 == "-h" || arg1 == "--help") {
-
-		std::cout <<
-			"usage: FractalRemake [options] [parameters...]\n"
-			"Options:\n"
-			"\n"
-			"-p      <x> <y> [iterlimit] [fractal]\n"
-			"--point <x> <y> [iterlimit] [fractal]\n"
-			"\n"
-			"Used to get info about [fractal] (defaults to the mandelbrot fractal)\nat point (x, y)\nwith the iteration limit [iterlimit] iterations (default 100000 iterations)"
-			
-			<< std::endl;
-
-	}
-	else if (arg1 == "-p" || arg1 == "--point") {
-		try
-		{
-			double x = std::stod(argv[2]);
-			double y = std::stod(argv[3]);
-
-			
-
-			fractalData data = Mandelbrot(x, y, 100000, 0);
-
-			if (data.iterResult == NotInside) {
-				std::cout << "Point is not inside the Mandelbrot set, escaping at " << data.iterations << " iterations." << "\n";
-			}
-			else {
-				std::cout << "Point is inside the Mandelbrot set at " << data.iterations << " iterations." << "\n";
-			}
-
-		}
-		catch (const std::exception& e)
-		{
-			std::cout << e.what();
-		}
-
-	}
-
-	std::cout << "\nPress ENTER to exit...";
-	std::cin.get();
-
-	FreeConsole();
-
-}
-
 void topToBottom(int i, int* x, int* y, int width, int height) {
 
 	*x = i % width;
