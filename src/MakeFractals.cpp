@@ -163,7 +163,7 @@ int main(int argc, char* argv[]) {
 #pragma endregion
 
     // Initialize the main fractal image
-    FractalImage mainFractalImage(SDL_GetWindowSurface(window)->w, SDL_GetWindowSurface(window)->h);
+    FractalImage mainFractalImage(1280, 960);
     //mainFractalImage.loadPaletteList();
     mainFractalImage.generatePalette();
     calculateReferenceMandelbrot(mainFractalImage.centerX, mainFractalImage.centerY, mainFractalImage.scale, mainFractalImage.iterationMax);

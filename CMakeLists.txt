@@ -5,6 +5,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
     set(CMAKE_STATIC_LIBRARY_SUFFIX ".a")
     add_compile_options(-fconstexpr-depth=1024)
+    set(CMAKE_EXE_LINKER_FLAGS "-no-pie")
     #add_link_options(--verbose)
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_STATIC_LIBRARY_PREFIX "")
@@ -16,7 +17,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 find_package(OpenGL REQUIRED)
 
-add_executable(MakeFractals WIN32)
+add_executable(MakeFractals)
 
 target_include_directories(MakeFractals PRIVATE "${CMAKE_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}/include/SDL2")
 
