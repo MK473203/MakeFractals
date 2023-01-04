@@ -41,8 +41,8 @@ fractalData FractalAlgorithm(fractalAlgorithmFunction algorithm, int _x, int _y,
 
 	if (algorithm == &MandelbrotSAPerturbation) {
 
-		apfloat Cx = (_x - (Width >> 1)) / (double)Width * scale * aspectRatio;
-		apfloat Cy = (_y - (Height >> 1)) / (double)Height * scale;
+		apfloat Cx = centerx - refPointX + (_x - (Width >> 1)) / (double)Width * scale * aspectRatio;
+		apfloat Cy = centery - refPointY + (_y - (Height >> 1)) / (double)Height * scale;
 
 		return algorithm(Cx, Cy, max_iter, flags);
 
@@ -55,7 +55,7 @@ fractalData FractalAlgorithm(fractalAlgorithmFunction algorithm, int _x, int _y,
 
 }
 
-void calculateStartingIter(apfloat x, apfloat y, int max_iter) {
+void probeMandelbrot(apfloat x, apfloat y, int max_iter) {
 	apfloat Cx = x;
 	apfloat Cy = y;
 
@@ -72,6 +72,8 @@ void calculateStartingIter(apfloat x, apfloat y, int max_iter) {
 				lowestIter = std::max(iter, 1l);
 			} else if(iter > highestIter) {
 				highestIter = iter;
+				refPointX = x;
+				refPointY = y;
 			}
 			return;
 		}
@@ -83,12 +85,11 @@ void calculateStartingIter(apfloat x, apfloat y, int max_iter) {
 	}
 
 	highestIter = max_iter;
-}
-
-void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale, int max_iter) {
-
 	refPointX = x;
 	refPointY = y;
+}
+
+void calculateMandelbrotReference(apfloat x, apfloat y, const deltafloat& scale, int max_iter) {
 
 	std::vector<apcomplex> tempcf;
 
@@ -102,32 +103,37 @@ void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale,
 		
 	}
 
+	refPointX = x;
+	refPointY = y;
+
 	lowestIter = max_iter;
 	highestIter = 0;
 	perturbationEndIter = 0;
 	
-	int samplePoints = 9;
+	
+	int samplePoints = 11;
 
-	for (float _x = -1; _x <= 1; _x += 2.0f / (samplePoints - 1))
-	{
-		for (float _y = -1; _y <= 1; _y += 2.0f / (samplePoints - 1))
-		{
-			if (abs(_y) < 1 && abs(_x) < 1) {
-				continue;
-			}
-			calculateStartingIter(x + _x * scale * 0.5, y + _y * scale * 0.5, max_iter);
-		}
+	for (float _x = -1; _x <= 1; _x += 2.0f / (samplePoints - 1)) {
+		
+		probeMandelbrot(x + _x * scale, refPointY, max_iter);
+
+	}
+
+	for (float _y = -1; _y <= 1; _y += 2.0f / (samplePoints - 1)) {
+
+		probeMandelbrot(refPointX, y + _y * scale, max_iter);
+
 	}
 
 	if (useAutomaticSeriesApproximation) {
 
 		perturbationStartingIter = lowestIter;
 
-		perturbationStartingIter *= 0.99;
+		perturbationStartingIter *= 0.9;
 
 	}
 	
-	apcomplex C = { x, y };
+	apcomplex C = { refPointX, refPointY };
 	apcomplex Z = { 0, 0 };
 
 	mpc_t mpc_temp;
@@ -227,6 +233,7 @@ void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale,
 	}
 
 	mpc_clear(mpc_temp);
+	mpc_clear(mpc4);
 
 
 

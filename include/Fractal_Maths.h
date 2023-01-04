@@ -30,6 +30,8 @@ extern int shadowAngle;
 extern float vx;
 extern float vy;
 
+extern apfloat refPointX;
+extern apfloat refPointY;
 extern std::vector<double> refx;
 extern std::vector<double> refy;
 
@@ -56,7 +58,7 @@ inline void updateShadowVars() {
 fractalData FractalAlgorithm(fractalAlgorithmFunction algorithm, int _x, int _y, int Width, int Height, int max_iter,
                              const apfloat& centerx, const apfloat& centery, const deltafloat& scale, float aspectRatio, int flags);
 
-void calculateReferenceMandelbrot(apfloat x, apfloat y, const deltafloat& scale, int max_iter);
+void calculateMandelbrotReference(apfloat x, apfloat y, const deltafloat& scale, int max_iter);
 
 fractalData Mandelbrot				(const apfloat& x, const apfloat& y, int max_iter, int flags);
 

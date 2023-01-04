@@ -330,7 +330,7 @@ void FractalImage::updatePixels() {
 	renderStartTime = SDL_GetTicks64();
 
 	if (currentAlgorithm == &MandelbrotSAPerturbation) {
-		calculateReferenceMandelbrot(centerX, centerY, scale, iterationMax);
+		calculateMandelbrotReference(centerX, centerY, scale, iterationMax);
 	}
 
 	lastAssignedIndex = threadAmount * 4 - 4;

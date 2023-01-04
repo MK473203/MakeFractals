@@ -1,6 +1,6 @@
 #include "MakeFractals.h"
 
-// The code for combining everything together into an interacive application
+// The code for combining everything together into an interactive application
 
 
 
@@ -166,7 +166,7 @@ int main(int argc, char* argv[]) {
     FractalImage mainFractalImage(1280, 960);
     //mainFractalImage.loadPaletteList();
     mainFractalImage.generatePalette();
-    calculateReferenceMandelbrot(mainFractalImage.centerX, mainFractalImage.centerY, mainFractalImage.scale, mainFractalImage.iterationMax);
+    calculateMandelbrotReference(mainFractalImage.centerX, mainFractalImage.centerY, mainFractalImage.scale, mainFractalImage.iterationMax);
     FractalImage renderingFractalImage = FractalImage();
 
 #pragma region OpenGL_textures
@@ -348,7 +348,7 @@ int main(int argc, char* argv[]) {
         if ((SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0
             && !ImGui::IsPopupOpen("Render", ImGuiPopupFlags_AnyPopup)
             && !displayPaletteEditor
-            && !ImGui::IsWindowFocused(ImGuiFocusedFlags_AnyWindow)) {
+            && !io.WantCaptureKeyboard) {
             const Uint8* keyboard = SDL_GetKeyboardState(NULL);
 
 #pragma region Zoomin
@@ -466,14 +466,14 @@ int main(int argc, char* argv[]) {
                 }
             }
 
-            if ((mouseState & SDL_BUTTON_LMASK) != 0) {
+            if ((mouseState & SDL_BUTTON_LMASK) != 0 && !io.WantCaptureMouse) {
 
                 if(SDL_GetPerformanceCounter() - lastClickTime < 100)
                 {
 	                dx = 0;
                     dy = 0;
                 }
-                
+
                 isAnyKeyPressed = true;
             	shouldImgMove = true;
 			}
@@ -988,9 +988,11 @@ int main(int argc, char* argv[]) {
         ImGui::Text(("Last render took " + std::to_string(mainFractalImage.lastRenderTime) + " ms").c_str());
         ImGui::Text(mainFractalImage.debugInfo().c_str());
         ImGui::Text(("Lowest iter: " + std::to_string(lowestIter)).c_str());
-        ImGui::Text(("SA Starting iter: " + std::to_string(perturbationStartingIter)).c_str());
-        ImGui::Text(("Highest reference iter: " + std::to_string(perturbationEndIter)).c_str());
         ImGui::Text(("Highest iter: " + std::to_string(highestIter)).c_str());
+        ImGui::Text(("Perturbation start iter: " + std::to_string(perturbationStartingIter)).c_str());
+        ImGui::Text(("Highest reference iter: " + std::to_string(perturbationEndIter)).c_str());
+        ImGui::Text(("Reference X: " + std::to_string(((refPointX - mainFractalImage.centerX) / mainFractalImage.scale).convert_to<double>())).c_str());
+        ImGui::Text(("Reference Y: " + std::to_string(((refPointY - mainFractalImage.centerY) / mainFractalImage.scale).convert_to<double>())).c_str());
         
 
         static bool showPixelInfoWindow = false;

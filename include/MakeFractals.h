@@ -1,7 +1,7 @@
 #ifndef FREMAKE
 #define FREMAKE
 
-// The code for combining everything together into an interacive application
+// The code for combining everything together into an interactive application
 
 #define BOOST_NO_EXCEPTIONS
 #include <boost/throw_exception.hpp>
