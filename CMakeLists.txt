@@ -19,6 +19,8 @@ target_include_directories(MakeFractals PRIVATE "${CMAKE_SOURCE_DIR}/include" "$
 
 if(WIN32)
 target_link_directories(MakeFractals PRIVATE "${CMAKE_SOURCE_DIR}/lib/win")
+elseif(APPLE)
+target_link_directories(MakeFractals PRIVATE "${CMAKE_SOURCE_DIR}/lib/macOS")
 elseif(UNIX)
 target_link_directories(MakeFractals PRIVATE "${CMAKE_SOURCE_DIR}/lib/linux")
 target_link_libraries(MakeFractals PRIVATE dl pthread)
