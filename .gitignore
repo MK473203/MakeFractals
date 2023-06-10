@@ -1,9 +1,24 @@
-# Build results
 build/
+out/
+bin/
+ext/*
+!ext/CMakeLists.txt
 
-# Visual Studio cache/options directory
+include/SDL2
+include/gmp.h
+include/mpc.h
+include/mpfr.h
+include/mpf2mpfr.h
+
+lib/*
+!lib/CMakeLists.txt
+
 .vs/
+.vscode/
 
 .gitattributes
 
+CMakeSettings.json
+CMakePresets.json
+MakeFractals.code-workspace
 CMakeSettings.json

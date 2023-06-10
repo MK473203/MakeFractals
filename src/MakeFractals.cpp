@@ -2,9 +2,8 @@
 
 // The code for combining everything together into an interactive application
 
-
-
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[])
+{
 
 #pragma region Initializations
 
@@ -15,27 +14,26 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-
 #pragma region OpenGL
 
     // Decide GL+GLSL versions
 #if defined(IMGUI_IMPL_OPENGL_ES2)
     // GL ES 2.0 + GLSL 100
-    const char* glsl_version = "#version 100";
+    const char *glsl_version = "#version 100";
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 #elif defined(__APPLE__)
     // GL 3.2 Core + GLSL 150
-    const char* glsl_version = "#version 150";
+    const char *glsl_version = "#version 150";
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); // Always required on Mac
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 #else
     // GL 3.0 + GLSL 330
-    const char* glsl_version = "#version 330";
+    const char *glsl_version = "#version 330";
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -47,7 +45,7 @@ int main(int argc, char* argv[]) {
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-    SDL_Window* window = SDL_CreateWindow("MakeFractals", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 960, window_flags);
+    SDL_Window *window = SDL_CreateWindow("MakeFractals", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 960, window_flags);
     SDL_GLContext gl_context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl_context);
     SDL_GL_SetSwapInterval(1); // Enable vsync
@@ -62,17 +60,16 @@ int main(int argc, char* argv[]) {
     // Basic rectangle vertices
     float vertices[] = {
         // positions         // texture coords
-         1.0f,  1.0f,   1.0f, 1.0f,   // top right
-         1.0f, -1.0f,   1.0f, 0.0f,   // bottom right
-        -1.0f, -1.0f,   0.0f, 0.0f,   // bottom left
-        -1.0f,  1.0f,   0.0f, 1.0f    // top left
+        1.0f, 1.0f, 1.0f, 1.0f,   // top right
+        1.0f, -1.0f, 1.0f, 0.0f,  // bottom right
+        -1.0f, -1.0f, 0.0f, 0.0f, // bottom left
+        -1.0f, 1.0f, 0.0f, 1.0f   // top left
     };
 
     unsigned int indices[] = {
         0, 1, 3, // first triangle
         1, 2, 3  // second triangle
     };
-
 
     unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
@@ -87,9 +84,9 @@ int main(int argc, char* argv[]) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, 0, 4 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, 0, 4 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, 0, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, 0, 4 * sizeof(float), (void *)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     // The render shader transforms the image according to user input in order to make it easier to aim where you're going
@@ -105,7 +102,7 @@ int main(int argc, char* argv[]) {
 
     glAttachShader(renderShaderProgram, renderVertexShader);
     glAttachShader(renderShaderProgram, renderFragmentShader);
-    glLinkProgram(renderShaderProgram); 
+    glLinkProgram(renderShaderProgram);
     glDeleteShader(renderVertexShader);
     glDeleteShader(renderFragmentShader);
 
@@ -133,23 +130,24 @@ int main(int argc, char* argv[]) {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
-    //io.ConfigViewportsNoAutoMerge = true;
-    //io.ConfigViewportsNoTaskBarIcon = true;
+    ImGuiIO &io = ImGui::GetIO();
+    (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // Enable Docking
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
+    // io.ConfigViewportsNoAutoMerge = true;
+    // io.ConfigViewportsNoTaskBarIcon = true;
 
     std::string iniPath = prefPath + "imgui.ini";
     io.IniFilename = iniPath.c_str();
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
-    //ImGui::StyleColorsLight();
+    // ImGui::StyleColorsLight();
 
     // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-    ImGuiStyle& style = ImGui::GetStyle();
+    ImGuiStyle &style = ImGui::GetStyle();
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
         style.WindowRounding = 0.0f;
@@ -164,7 +162,7 @@ int main(int argc, char* argv[]) {
 
     // Initialize the main fractal image
     FractalImage mainFractalImage(1280, 960);
-    //mainFractalImage.loadPaletteList();
+    // mainFractalImage.loadPaletteList();
     mainFractalImage.generatePalette();
     calculateMandelbrotReference(mainFractalImage.centerX, mainFractalImage.centerY, mainFractalImage.scale, mainFractalImage.iterationMax);
     FractalImage renderingFractalImage = FractalImage();
@@ -214,11 +212,11 @@ int main(int argc, char* argv[]) {
     float matrixScale = 100.0f;
 
     bool isAnyKeyPressed = false;
-	float mouseZoomAmount = 1.0f;
+    float mouseZoomAmount = 1.0f;
     int mouseZoomDir = 0;
-	float zoomAmount;
-	float slowZoomAmount;
-	float offsetValue;
+    float zoomAmount;
+    float slowZoomAmount;
+    float offsetValue;
     Uint64 lastClickTime = 0;
 
     // Intermediate variables between imgui windows and the main fractal image
@@ -230,7 +228,7 @@ int main(int argc, char* argv[]) {
     int algorithmComboIndex = 0;
     int indexMapperComboIndex = 0;
     bool displayPaletteEditor = false;
-    char* paletteNameBuffer = FractalImage::currentPalette.name.data();
+    const char *paletteNameBuffer = FractalImage::currentPalette.name.data();
 
     float colorOffsetFloat = 0.0f;
 
@@ -242,13 +240,13 @@ int main(int argc, char* argv[]) {
     deltafloat startingScale;
 
     // Automatically fetch items for imgui drop down lists
-    std::vector<const char*> algorithmComboItems;
+    std::vector<const char *> algorithmComboItems;
     for (auto it = fractalAlgorithms.begin(); it != fractalAlgorithms.end(); it++)
     {
         algorithmComboItems.push_back(it->first);
     }
 
-    std::vector<const char*> indexMapperComboItems;
+    std::vector<const char *> indexMapperComboItems;
     for (auto it = indexMapAlgorithms.begin(); it != indexMapAlgorithms.end(); it++)
     {
         indexMapperComboItems.push_back(it->first);
@@ -265,7 +263,8 @@ int main(int argc, char* argv[]) {
 
     bool done = false;
 
-    while (!done) {
+    while (!done)
+    {
 
         // Window and input event handling
         SDL_Event event;
@@ -281,15 +280,18 @@ int main(int argc, char* argv[]) {
                 done = true;
                 break;
             case SDL_WINDOWEVENT:
-                if (event.window.windowID != SDL_GetWindowID(window)) {
+                if (event.window.windowID != SDL_GetWindowID(window))
+                {
                     break;
                 }
-                if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
+                if (event.window.event == SDL_WINDOWEVENT_CLOSE)
+                {
                     mainFractalImage.cancelUpdate();
                     mainFractalImage.savePaletteList();
                     done = true;
                 }
-                else if (event.window.event == SDL_WINDOWEVENT_RESIZED || event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+                else if (event.window.event == SDL_WINDOWEVENT_RESIZED || event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+                {
 
                     mainFractalImage.cancelUpdate();
                     mainFractalImage.width = event.window.data1;
@@ -297,7 +299,6 @@ int main(int argc, char* argv[]) {
                     mainFractalImage.aspectRatio = (float)event.window.data1 / event.window.data2;
                     mainFractalImage.resizeArrays();
                     mainFractalImage.renderingStatus = NeedUpdate;
-
 
                     glViewport(0, 0, event.window.data1, event.window.data2);
                     glBindTexture(GL_TEXTURE_2D, fractalTexture);
@@ -309,8 +310,6 @@ int main(int argc, char* argv[]) {
                     glBindTexture(GL_TEXTURE_2D, renderTexture);
                     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mainFractalImage.width, mainFractalImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
                     glGenerateMipmap(GL_TEXTURE_2D);
-
-
                 }
                 break;
             case SDL_KEYUP:
@@ -331,37 +330,38 @@ int main(int argc, char* argv[]) {
                 break;
             }
         }
-        
+
 #pragma region INPUT_STUFF
 
         last = now;
         now = SDL_GetPerformanceCounter();
 
         deltatime = (double)((now - last) * 1000 / (double)SDL_GetPerformanceFrequency());
-        
-    	int mousePos[2];
-    	Uint32 mouseState = SDL_GetMouseState(&mousePos[0], &mousePos[1]);
-        
-    	int dx, dy;
-    	SDL_GetRelativeMouseState(&dx, &dy);
 
-        if ((SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0
-            && !ImGui::IsPopupOpen("Render", ImGuiPopupFlags_AnyPopup)
-            && !displayPaletteEditor
-            && !io.WantCaptureKeyboard) {
-            const Uint8* keyboard = SDL_GetKeyboardState(NULL);
+        int mousePos[2];
+        Uint32 mouseState = SDL_GetMouseState(&mousePos[0], &mousePos[1]);
+
+        int dx, dy;
+        SDL_GetRelativeMouseState(&dx, &dy);
+
+        if ((SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0 && !ImGui::IsPopupOpen("Render", ImGuiPopupFlags_AnyPopup) && !displayPaletteEditor && !io.WantCaptureKeyboard)
+        {
+            const Uint8 *keyboard = SDL_GetKeyboardState(NULL);
 
 #pragma region Zoomin
 
             zoomAmount = 1.0f - (std::clamp(deltatime, 0.0, 10.0) / 200);
             slowZoomAmount = std::pow(zoomAmount, 1.0f / 4);
 
-            if (keyboard[SDL_SCANCODE_KP_MULTIPLY] || keyboard[SDL_SCANCODE_PAGEUP]) {
-                if (keyboard[SDL_SCANCODE_LSHIFT]) {
+            if (keyboard[SDL_SCANCODE_KP_MULTIPLY] || keyboard[SDL_SCANCODE_PAGEUP])
+            {
+                if (keyboard[SDL_SCANCODE_LSHIFT])
+                {
                     mainFractalImage.scale *= slowZoomAmount;
                     matrixScale /= slowZoomAmount;
                 }
-                else {
+                else
+                {
                     mainFractalImage.scale *= zoomAmount;
                     matrixScale /= zoomAmount;
                 }
@@ -369,12 +369,15 @@ int main(int argc, char* argv[]) {
                 isAnyKeyPressed = true;
             }
 
-            if (keyboard[SDL_SCANCODE_KP_DIVIDE] || keyboard[SDL_SCANCODE_PAGEDOWN]) {
-                if (keyboard[SDL_SCANCODE_LSHIFT]) {
+            if (keyboard[SDL_SCANCODE_KP_DIVIDE] || keyboard[SDL_SCANCODE_PAGEDOWN])
+            {
+                if (keyboard[SDL_SCANCODE_LSHIFT])
+                {
                     mainFractalImage.scale /= slowZoomAmount;
                     matrixScale *= slowZoomAmount;
                 }
-                else {
+                else
+                {
 
                     mainFractalImage.scale /= zoomAmount;
                     matrixScale *= zoomAmount;
@@ -383,44 +386,46 @@ int main(int argc, char* argv[]) {
                 isAnyKeyPressed = true;
             }
 
-
-
 #pragma endregion
-
-            
 
 #pragma region WASD
 
             offsetValue = 1.0 * deltatime / 10000.0;
-            if (!keyboard[SDL_SCANCODE_LSHIFT]) {
+            if (!keyboard[SDL_SCANCODE_LSHIFT])
+            {
                 offsetValue *= 5;
             }
-            else {
+            else
+            {
                 isAnyKeyPressed = true;
             }
 
-            if (keyboard[SDL_SCANCODE_W]) {
+            if (keyboard[SDL_SCANCODE_W])
+            {
                 mainFractalImage.centerY += mainFractalImage.scale * offsetValue;
                 translationVector.y -= 2 * offsetValue / matrixScale;
 
                 mainFractalImage.renderingStatus = NeedUpdate;
                 isAnyKeyPressed = true;
             }
-            if (keyboard[SDL_SCANCODE_S]) {
+            if (keyboard[SDL_SCANCODE_S])
+            {
                 mainFractalImage.centerY -= mainFractalImage.scale * offsetValue;
                 translationVector.y += 2 * offsetValue / matrixScale;
 
                 mainFractalImage.renderingStatus = NeedUpdate;
                 isAnyKeyPressed = true;
             }
-            if (keyboard[SDL_SCANCODE_A]) {
+            if (keyboard[SDL_SCANCODE_A])
+            {
                 mainFractalImage.centerX -= mainFractalImage.scale * offsetValue;
                 translationVector.x += 2 * offsetValue / matrixScale / mainFractalImage.aspectRatio;
 
                 mainFractalImage.renderingStatus = NeedUpdate;
                 isAnyKeyPressed = true;
             }
-            if (keyboard[SDL_SCANCODE_D]) {
+            if (keyboard[SDL_SCANCODE_D])
+            {
                 mainFractalImage.centerX += mainFractalImage.scale * offsetValue;
                 translationVector.x -= 2 * offsetValue / matrixScale / mainFractalImage.aspectRatio;
 
@@ -434,117 +439,128 @@ int main(int argc, char* argv[]) {
 
             bool shouldImgMove = false;
 
-            if(mouseZoomDir > 0) {
-	            if (keyboard[SDL_SCANCODE_LSHIFT]) {
-	                mainFractalImage.scale *= std::pow(mouseZoomAmount, 1.0f / 4);
-	                matrixScale /= std::pow(mouseZoomAmount, 1.0f / 4);
-	            }
-	            else {
-	                mainFractalImage.scale *= mouseZoomAmount;
-	                matrixScale /= mouseZoomAmount;
-	            }
+            if (mouseZoomDir > 0)
+            {
+                if (keyboard[SDL_SCANCODE_LSHIFT])
+                {
+                    mainFractalImage.scale *= std::pow(mouseZoomAmount, 1.0f / 4);
+                    matrixScale /= std::pow(mouseZoomAmount, 1.0f / 4);
+                }
+                else
+                {
+                    mainFractalImage.scale *= mouseZoomAmount;
+                    matrixScale /= mouseZoomAmount;
+                }
 
-                if ((mouseState & SDL_BUTTON_LMASK) == 0) {
+                if ((mouseState & SDL_BUTTON_LMASK) == 0)
+                {
 
                     dx = (mainFractalImage.width / 2 - mousePos[0]) / 4;
-                    dy = (mainFractalImage.height / 2  - mousePos[1]) / 4;
+                    dy = (mainFractalImage.height / 2 - mousePos[1]) / 4;
 
                     shouldImgMove = true;
-	                
-                }
-
-            }
-            
-            if(mouseZoomDir < 0) {
-	            if ((mouseState & SDL_BUTTON_LMASK) == 0) {
-                    
-                    dx = -(mainFractalImage.width / 2 - mousePos[0]) / 4;
-                    dy = -(mainFractalImage.height / 2  - mousePos[1]) / 4;
-                    
-                    shouldImgMove = true;
-	                
                 }
             }
 
-            if ((mouseState & SDL_BUTTON_LMASK) != 0 && !io.WantCaptureMouse) {
-
-                if(SDL_GetPerformanceCounter() - lastClickTime < 100)
+            if (mouseZoomDir < 0)
+            {
+                if ((mouseState & SDL_BUTTON_LMASK) == 0)
                 {
-	                dx = 0;
+
+                    dx = -(mainFractalImage.width / 2 - mousePos[0]) / 4;
+                    dy = -(mainFractalImage.height / 2 - mousePos[1]) / 4;
+
+                    shouldImgMove = true;
+                }
+            }
+
+            if ((mouseState & SDL_BUTTON_LMASK) != 0 && !io.WantCaptureMouse)
+            {
+
+                if (SDL_GetPerformanceCounter() - lastClickTime < 100)
+                {
+                    dx = 0;
                     dy = 0;
                 }
 
                 isAnyKeyPressed = true;
-            	shouldImgMove = true;
-			}
+                shouldImgMove = true;
+            }
 
-            if(shouldImgMove) {
+            if (shouldImgMove)
+            {
 
-                if (dx != 0) {
+                if (dx != 0)
+                {
 
                     float xOffset = ((float)dx / mainFractalImage.width);
                     mainFractalImage.centerX -= mainFractalImage.scale * xOffset * mainFractalImage.aspectRatio;
                     translationVector.x += 2 * xOffset / matrixScale;
                     mainFractalImage.renderingStatus = NeedUpdate;
-
                 }
-                if(dy != 0) {
+                if (dy != 0)
+                {
 
                     float yOffset = ((float)dy / mainFractalImage.height);
                     mainFractalImage.centerY += mainFractalImage.scale * yOffset;
                     translationVector.y -= 2 * yOffset / matrixScale;
                     mainFractalImage.renderingStatus = NeedUpdate;
-
                 }
-	            
             }
 
-            if(mouseZoomDir < 0) {
-            	if (keyboard[SDL_SCANCODE_LSHIFT]) {
-	                mainFractalImage.scale /= std::pow(mouseZoomAmount, 1.0f / 4);
-	                matrixScale *= std::pow(mouseZoomAmount, 1.0f / 4);
-	            }
-	            else {
-	                mainFractalImage.scale /= mouseZoomAmount;
-	                matrixScale *= mouseZoomAmount;
-	            }
-
+            if (mouseZoomDir < 0)
+            {
+                if (keyboard[SDL_SCANCODE_LSHIFT])
+                {
+                    mainFractalImage.scale /= std::pow(mouseZoomAmount, 1.0f / 4);
+                    matrixScale *= std::pow(mouseZoomAmount, 1.0f / 4);
+                }
+                else
+                {
+                    mainFractalImage.scale /= mouseZoomAmount;
+                    matrixScale *= mouseZoomAmount;
+                }
             }
-
 
 #pragma endregion
 
-            if (keyboard[SDL_SCANCODE_KP_PLUS]) {
+            if (keyboard[SDL_SCANCODE_KP_PLUS])
+            {
 
-                if (mainFractalImage.iterationMax < 10000000) {
-                    if (mainFractalImage.iterationMax < 10) {
+                if (mainFractalImage.iterationMax < 10000000)
+                {
+                    if (mainFractalImage.iterationMax < 10)
+                    {
                         mainFractalImage.iterationMax += 1;
                     }
-                    else {
+                    else
+                    {
                         mainFractalImage.iterationMax += pow(10, floor(log10(mainFractalImage.iterationMax)) - 1);
                     }
                     mainFractalImage.renderingStatus = NeedUpdate;
                 }
             }
-            if (keyboard[SDL_SCANCODE_MINUS]) {
+            if (keyboard[SDL_SCANCODE_MINUS])
+            {
 
-                if (mainFractalImage.iterationMax > 1) {
-                    if (mainFractalImage.iterationMax < 10) {
+                if (mainFractalImage.iterationMax > 1)
+                {
+                    if (mainFractalImage.iterationMax < 10)
+                    {
                         mainFractalImage.iterationMax -= 1;
                     }
-                    else {
+                    else
+                    {
                         mainFractalImage.iterationMax -= pow(10, floor(log10(mainFractalImage.iterationMax)) - 1);
                     }
                     mainFractalImage.renderingStatus = NeedUpdate;
                 }
             }
-
         }
 
 #pragma endregion
 
-        
-    	mouseZoomAmount = 1;
+        mouseZoomAmount = 1;
         mouseZoomDir = 0;
 
         ImGui_ImplOpenGL3_NewFrame();
@@ -556,48 +572,57 @@ int main(int argc, char* argv[]) {
 #pragma region Main_settings_window
 
         ImGui::Begin("Main##mainsettings", 0, 0 | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
-		
-        if (ImGui::BeginTabBar("MainTabBar", 0)) {
+
+        if (ImGui::BeginTabBar("MainTabBar", 0))
+        {
 
             // ALGORITHM TAB
-            if (ImGui::BeginTabItem("Algorithm")) {
+            if (ImGui::BeginTabItem("Algorithm"))
+            {
 
-                if (ImGui::InputInt("Iterations", &mainFractalImage.iterationMax, pow(10, floor(log10(mainFractalImage.iterationMax)) - 1), 0, 0 | ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
-                    if (mainFractalImage.iterationMax > 1000000000 || mainFractalImage.iterationMax < 10) {
+                if (ImGui::InputInt("Iterations", &mainFractalImage.iterationMax, pow(10, floor(log10(mainFractalImage.iterationMax)) - 1), 0, 0 | ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue))
+                {
+                    if (mainFractalImage.iterationMax > 1000000000 || mainFractalImage.iterationMax < 10)
+                    {
                         mainFractalImage.iterationMax = std::max(std::min(mainFractalImage.iterationMax, 1000000), 10);
                     }
-                    else {
+                    else
+                    {
                         mainFractalImage.renderingStatus = NeedUpdate;
                     }
                 }
 
-                if (ImGui::Combo("Algorithm##algorithmcombo", &algorithmComboIndex, algorithmComboItems.data(), algorithmComboItems.size())) {
-	                FractalImage::currentAlgorithm = fractalAlgorithms[algorithmComboItems[algorithmComboIndex]];
+                if (ImGui::Combo("Algorithm##algorithmcombo", &algorithmComboIndex, algorithmComboItems.data(), algorithmComboItems.size()))
+                {
+                    FractalImage::currentAlgorithm = fractalAlgorithms[algorithmComboItems[algorithmComboIndex]];
 
                     mainFractalImage.renderingStatus = NeedUpdate;
                 }
 
-                if (FractalImage::currentAlgorithm == &MandelbrotSAPerturbation) {
+                if (FractalImage::currentAlgorithm == &MandelbrotSAPerturbation)
+                {
 
                     ImGui::Checkbox("Automate SA", &useAutomaticSeriesApproximation);
 
                     ImGui::BeginDisabled(useAutomaticSeriesApproximation);
 
-                    if (ImGui::InputInt("Approximation terms##satermsinput", &seriesLength, 1, 10, 0 | ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+                    if (ImGui::InputInt("Approximation terms##satermsinput", &seriesLength, 1, 10, 0 | ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue))
+                    {
 
                         mainFractalImage.renderingStatus = NeedUpdate;
                     }
 
-                    if (ImGui::InputInt("Approximation Iterations##saitersinput", (int*)&perturbationStartingIter, 1, 10, 0 | ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+                    if (ImGui::InputInt("Approximation Iterations##saitersinput", (int *)&perturbationStartingIter, 1, 10, 0 | ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue))
+                    {
 
                         mainFractalImage.renderingStatus = NeedUpdate;
                     }
 
                     ImGui::EndDisabled();
-
                 }
 
-                if (ImGui::Button("Refresh")) {
+                if (ImGui::Button("Refresh"))
+                {
                     mainFractalImage.renderingStatus = NeedUpdate;
                 }
 
@@ -619,47 +644,53 @@ int main(int argc, char* argv[]) {
                     mainFractalImage.flags = flags;
                 }*/
 
-
                 ImGui::EndTabItem();
-
             }
 
             // RENDERING TAB
-            if (ImGui::BeginTabItem("Rendering")) {
+            if (ImGui::BeginTabItem("Rendering"))
+            {
 
                 ImGui::RadioButton("Sample Distance", &SampleDistanceOrMultisampling, 1);
                 ImGui::SameLine();
                 ImGui::RadioButton("Multisampling", &SampleDistanceOrMultisampling, -1);
-                if (ImGui::InputInt("##mutisamplinginput", &multisamplingTemp, 1, 1, 0 | ImGuiInputTextFlags_CharsDecimal)) {
+                if (ImGui::InputInt("##mutisamplinginput", &multisamplingTemp, 1, 1, 0 | ImGuiInputTextFlags_CharsDecimal))
+                {
 
                     mainFractalImage.cancelUpdate();
-                    if (multisamplingTemp == 0) multisamplingTemp = 1;
-                    if (multisamplingTemp * SampleDistanceOrMultisampling < -4) {
+                    if (multisamplingTemp == 0)
+                        multisamplingTemp = 1;
+                    if (multisamplingTemp * SampleDistanceOrMultisampling < -4)
+                    {
                         multisamplingTemp = 4;
                     }
                     mainFractalImage.sampleDistance = multisamplingTemp * SampleDistanceOrMultisampling;
                     mainFractalImage.renderingStatus = NeedUpdate;
                 }
 
-                if (ImGui::Combo("Order##indexmappercombo", &indexMapperComboIndex, indexMapperComboItems.data(), indexMapperComboItems.size())) {
-	                FractalImage::indexMapper = indexMapAlgorithms[indexMapperComboItems[indexMapperComboIndex]];
+                if (ImGui::Combo("Order##indexmappercombo", &indexMapperComboIndex, indexMapperComboItems.data(), indexMapperComboItems.size()))
+                {
+                    FractalImage::indexMapper = indexMapAlgorithms[indexMapperComboItems[indexMapperComboIndex]];
                     mainFractalImage.renderingStatus = NeedUpdate;
                 }
 
-                if(ImGui::Checkbox("Reversed##reverseordercheckbox", &FractalImage::reverseRenderOrder)) {
-	                
+                if (ImGui::Checkbox("Reversed##reverseordercheckbox", &FractalImage::reverseRenderOrder))
+                {
                 }
 
-                if (ImGui::Button("Refresh")) {
+                if (ImGui::Button("Refresh"))
+                {
                     mainFractalImage.renderingStatus = NeedUpdate;
                 }
 
-                if (ImGui::Button("Quick render")) {
+                if (ImGui::Button("Quick render"))
+                {
                     mainFractalImage.saveToImage((prefPath + "images/").c_str(), false);
                     mainFractalImage.renderingStatus = Ready;
                 }
                 ImGui::SameLine();
-                if (ImGui::Button("Advanced")) {
+                if (ImGui::Button("Advanced"))
+                {
                     renderingFractalImage = FractalImage(mainFractalImage);
                     renderingFractalImage.width = 1280;
                     renderingFractalImage.height = 720;
@@ -678,7 +709,8 @@ int main(int argc, char* argv[]) {
 
                 if (ImGui::BeginPopupModal("Render", 0, ImGuiWindowFlags_AlwaysAutoResize))
                 {
-                    if (renderingFractalImage.renderingStatus != Ready && renderingFractalImage.renderingStatus != Empty) {
+                    if (renderingFractalImage.renderingStatus != Ready && renderingFractalImage.renderingStatus != Empty)
+                    {
                         ImGui::BeginDisabled(true);
                     }
 
@@ -686,7 +718,8 @@ int main(int argc, char* argv[]) {
                     ImGui::Text("Image resolution");
 
                     static int resolutionComboIndex = 1;
-                    if (ImGui::Combo("Presets", &resolutionComboIndex, "480p\000720p\0001080p\0001440p\0004k\0008k\000\000")) {
+                    if (ImGui::Combo("Presets", &resolutionComboIndex, "480p\000720p\0001080p\0001440p\0004k\0008k\000\000"))
+                    {
                         switch (resolutionComboIndex)
                         {
                         case 0:
@@ -732,40 +765,41 @@ int main(int argc, char* argv[]) {
                     ImGui::SameLine();
                     ImGui::RadioButton("Video", &renderType, 1);
 
-                    if (renderType != 0) {
+                    if (renderType != 0)
+                    {
                         // Different video settings here
                     }
 
-
                     int keyFrameAmount = floor(log(startingScale / 3.0) / log(0.5)).convert_to<int>();
 
-                    if (ImGui::Button("Render")) {
+                    if (ImGui::Button("Render"))
+                    {
                         renderingFractalImage.sampleDistance = -renderms;
                         FractalImage::indexMapper = &topToBottom;
 
-                        if (renderType != 0) {
+                        if (renderType != 0)
+                        {
 
-                            std::thread t([&renderingFractalImage, &keyFrameCounter] {
-                                renderingFractalImage.generateZoomVideo(keyFrameCounter);
-                                });
+                            std::thread t([&renderingFractalImage, &keyFrameCounter]
+                                          { renderingFractalImage.generateZoomVideo(keyFrameCounter); });
                             t.detach();
-
                         }
-                        else {
-                            std::thread t([&renderingFractalImage] {
-                                renderingFractalImage.saveToImage((prefPath + "images/").c_str(), false);
-                                });
+                        else
+                        {
+                            std::thread t([&renderingFractalImage]
+                                          { renderingFractalImage.saveToImage((prefPath + "images/").c_str(), false); });
                             t.detach();
                         }
                     }
 
-
-                    if (renderingFractalImage.renderingStatus != Ready && renderingFractalImage.renderingStatus != Empty) {
+                    if (renderingFractalImage.renderingStatus != Ready && renderingFractalImage.renderingStatus != Empty)
+                    {
                         ImGui::EndDisabled();
                     }
 
                     ImGui::SameLine();
-                    if (ImGui::Button("Cancel")) {
+                    if (ImGui::Button("Cancel"))
+                    {
                         renderingFractalImage.cancelUpdate();
                         renderingFractalImage.pixelArray.clear();
                         renderingFractalImage.dataArray.clear();
@@ -773,22 +807,26 @@ int main(int argc, char* argv[]) {
                         ImGui::CloseCurrentPopup();
                     }
 
-                    if (renderingFractalImage.renderingStatus == Rendering) {
-                        if (renderType != 0) {
+                    if (renderingFractalImage.renderingStatus == Rendering)
+                    {
+                        if (renderType != 0)
+                        {
                             char buf[32];
-                        	snprintf(buf, sizeof(buf), "keyframe %d/%d: %.0f%%", keyFrameCounter, keyFrameAmount, renderingFractalImage.renderProgress * 100 + 0.01f);
+                            snprintf(buf, sizeof(buf), "keyframe %d/%d: %.0f%%", keyFrameCounter, keyFrameAmount, renderingFractalImage.renderProgress * 100 + 0.01f);
                             ImGui::ProgressBar(renderingFractalImage.renderProgress, ImVec2(-FLT_MIN, 0), buf);
                         }
-                        else {
+                        else
+                        {
                             ImGui::ProgressBar(renderingFractalImage.renderProgress);
                         }
-
                     }
-                    else if (renderingFractalImage.renderingStatus == Ready && renderType == 0) {
+                    else if (renderingFractalImage.renderingStatus == Ready && renderType == 0)
+                    {
                         ImGui::Text("Saving image to file...");
                     }
                     else if ((renderingFractalImage.renderingStatus == ImageSaved && renderType == 0) ||
-                        renderingFractalImage.renderingStatus == VideoSaved) {
+                             renderingFractalImage.renderingStatus == VideoSaved)
+                    {
                         renderingFractalImage.pixelArray.clear();
                         renderingFractalImage.dataArray.clear();
                         ImGui::CloseCurrentPopup();
@@ -798,78 +836,103 @@ int main(int argc, char* argv[]) {
                     ImGui::EndPopup();
                 }
 
-                if (ImGui::InputInt("Threads", &mainFractalImage.threadAmount, 1, 1, 0 | ImGuiInputTextFlags_CharsDecimal)) {
+                if (ImGui::InputInt("Threads", &mainFractalImage.threadAmount, 1, 1, 0 | ImGuiInputTextFlags_CharsDecimal))
+                {
                     mainFractalImage.threadAmount = std::clamp(mainFractalImage.threadAmount, 1, 4 * (int)std::thread::hardware_concurrency());
                 }
-
 
                 ImGui::EndTabItem();
             }
 
             // VISUALS TAB
-            if (ImGui::BeginTabItem("Visuals")) {
+            if (ImGui::BeginTabItem("Visuals"))
+            {
 
                 static int colorMapTypeCombo = 0;
-                if (ImGui::Combo("Coloring method", &colorMapTypeCombo, "Linear cyclic\000Exponential cyclic\000Histogram\000\000")) {
-	                FractalImage::currentColorMapType = (colorMapType)colorMapTypeCombo;
-                    if (FractalImage::currentColorMapType == Histogram) mainFractalImage.generateHistogram();
+                if (ImGui::Combo("Coloring method", &colorMapTypeCombo, "Linear\000Exponential\000Logarithmic\000Histogram\000\000"))
+                {
+                    FractalImage::currentColorMapType = (colorMapType)colorMapTypeCombo;
+                    if (FractalImage::currentColorMapType == Histogram)
+                        mainFractalImage.generateHistogram();
                     mainFractalImage.refreshVisuals();
                 }
 
-                if (ImGui::Checkbox("##shadowcheckbox", &FractalImage::shadowFx)) {
+                if (FractalImage::currentColorMapType == Exponential)
+                {
+                    if (ImGui::DragFloat("Exponent", &FractalImage::colorMapExponent, 0.01f, 0.0f, 2.0f, "%.2f", 0 | ImGuiSliderFlags_AlwaysClamp))
+                    {
+                        mainFractalImage.refreshVisuals();
+                    }
+                }
+
+                if (FractalImage::shadowFx)
+                {
+                    if (ImGui::DragFloat("##shadowstrength", &FractalImage::shadowStrength, 0.01f, 0.0f, 1.0f, "%.2f", 0 | ImGuiSliderFlags_AlwaysClamp))
+                    {
+                        mainFractalImage.refreshVisuals();
+                    }
+
+                    ImGui::SameLine();
+                }
+
+                if (ImGui::Checkbox("Shadow##shadowcheckbox", &FractalImage::shadowFx))
+                {
                     mainFractalImage.refreshVisuals();
                 }
 
-                ImGui::SameLine();
+                if (FractalImage::shadowFx)
+                {
 
-                if (ImGui::DragFloat("Shadow", &FractalImage::shadowStrength, 0.01f, 0.0f, 1.0f, "%.2f", 0 | ImGuiSliderFlags_AlwaysClamp) &&
-	                FractalImage::shadowFx) {
-                    mainFractalImage.refreshVisuals();
+                    if (ImGui::DragInt("Shadow angle", &shadowAngle, 1.0f, 0, 360, "%d", 0 | ImGuiSliderFlags_AlwaysClamp))
+                    {
+                        updateShadowVars();
+                        mainFractalImage.renderingStatus = NeedUpdate;
+                    }
+                    ImGui::SameLine();
+                    HelpMarker("Warning! Requires re-rendering");
+
+                    if (ImGui::DragFloat("Shadow height", &h2, 0.01f, 0.0f, 10.0f, "%.2f", 0 | ImGuiSliderFlags_AlwaysClamp))
+                    {
+                        mainFractalImage.renderingStatus = NeedUpdate;
+                    }
+                    ImGui::SameLine();
+                    HelpMarker("Warning! Requires re-rendering");
                 }
 
-                if (ImGui::DragInt("Shadow angle", &shadowAngle, 1.0f, 0, 360, "%d", 0 | ImGuiSliderFlags_AlwaysClamp) &&
-	                FractalImage::shadowFx) {
-                    updateShadowVars();
-                    mainFractalImage.renderingStatus = NeedUpdate;
-
-                } ImGui::SameLine(); HelpMarker("Warning! Requires re-rendering");
-
-                if (ImGui::DragFloat("Shadow height", &h2, 0.01f, 0.0f, 10.0f, "%.2f", 0 | ImGuiSliderFlags_AlwaysClamp) &&
-	                FractalImage::shadowFx) {
-                    mainFractalImage.renderingStatus = NeedUpdate;
-
-                } ImGui::SameLine(); HelpMarker("Warning! Requires re-rendering");
-
-                if (ImGui::Button("<<")) {
+                if (ImGui::Button("<<"))
+                {
                     mainFractalImage.iterDiv >>= 1;
                     mainFractalImage.refreshVisuals();
                 }
                 ImGui::SameLine();
-                if (ImGui::Button("-1")) {
+                if (ImGui::Button("-1"))
+                {
                     mainFractalImage.iterDiv -= 1;
                     mainFractalImage.refreshVisuals();
                 }
                 ImGui::SameLine();
                 ImGui::PushItemWidth(100);
-                if (ImGui::DragInt("##iterdivslider", &mainFractalImage.iterDiv)) {
+                if (ImGui::DragInt("##iterdivslider", &mainFractalImage.iterDiv))
+                {
                     mainFractalImage.refreshVisuals();
                 }
                 ImGui::PopItemWidth();
                 ImGui::SameLine();
-                if (ImGui::Button("+1")) {
+                if (ImGui::Button("+1"))
+                {
                     mainFractalImage.iterDiv += 1;
                     mainFractalImage.refreshVisuals();
                 }
                 ImGui::SameLine();
-                if (ImGui::Button(">>")) {
+                if (ImGui::Button(">>"))
+                {
                     mainFractalImage.iterDiv <<= 1;
                     mainFractalImage.refreshVisuals();
                 }
                 ImGui::SameLine();
                 ImGui::Text("Iter div");
 
-
-                const char* combo_preview_value = FractalImage::paletteList[paletteComboIndex].name.c_str();
+                const char *combo_preview_value = FractalImage::paletteList[paletteComboIndex].name.c_str();
                 ImGui::PushItemWidth(100);
                 if (ImGui::BeginCombo("##palettepickercombo", combo_preview_value, 0))
                 {
@@ -877,7 +940,8 @@ int main(int argc, char* argv[]) {
                     {
                         const bool is_selected = (paletteComboIndex == n);
                         std::string selectableLabel = FractalImage::paletteList[n].name + std::string("##palette") + std::to_string(n);
-                        if (ImGui::Selectable(selectableLabel.c_str(), is_selected)) {
+                        if (ImGui::Selectable(selectableLabel.c_str(), is_selected))
+                        {
                             paletteComboIndex = n;
 
                             FractalImage::currentPalette = FractalImage::paletteList[paletteComboIndex];
@@ -888,7 +952,6 @@ int main(int argc, char* argv[]) {
                             mainFractalImage.refreshVisuals();
                         }
 
-
                         if (is_selected)
                             ImGui::SetItemDefaultFocus();
                     }
@@ -898,15 +961,18 @@ int main(int argc, char* argv[]) {
                 ImGui::PopItemWidth();
                 ImGui::SameLine();
 
-                if (ImGui::Button("Edit##editpalette")) {
+                if (ImGui::Button("Edit##editpalette"))
+                {
                     displayPaletteEditor = !displayPaletteEditor;
                 }
 
-                ImGui::SameLine(); ImGui::Text("Color palette");
+                ImGui::SameLine();
+                ImGui::Text("Color palette");
 
-                if (ImGui::DragFloat("Color offset", &colorOffsetFloat, 0.005f, 0.0f, 1.0f, "%.3f", 0 | ImGuiSliderFlags_AlwaysClamp)) {
+                if (ImGui::DragFloat("Color offset", &colorOffsetFloat, 0.005f, 0.0f, 1.0f, "%.3f", 0 | ImGuiSliderFlags_AlwaysClamp))
+                {
 
-	                FractalImage::ColorOffset = FractalImage::ColorAmount * colorOffsetFloat;
+                    FractalImage::ColorOffset = FractalImage::ColorAmount * colorOffsetFloat;
 
                     mainFractalImage.refreshVisuals();
                 }
@@ -915,14 +981,17 @@ int main(int argc, char* argv[]) {
             }
 
             // MISC TAB
-            if (ImGui::BeginTabItem("Misc")) {
+            if (ImGui::BeginTabItem("Misc"))
+            {
 
-                if (ImGui::Button("Save", ImVec2(80, 25))) {
+                if (ImGui::Button("Save", ImVec2(80, 25)))
+                {
 
                     mainFractalImage.savePaletteList();
 
-                    std::ofstream ofs( savePath);
-                    if(ofs.good()) {
+                    std::ofstream ofs(savePath);
+                    if (ofs.good())
+                    {
                         ofs << mainFractalImage << '\n';
                         ofs << currentPaletteIndex;
                     }
@@ -932,12 +1001,14 @@ int main(int argc, char* argv[]) {
 
                 ImGui::SameLine(0.0f, 10.0f);
 
-                if (ImGui::Button("Load", ImVec2(80, 25))) {
+                if (ImGui::Button("Load", ImVec2(80, 25)))
+                {
 
                     mainFractalImage.loadPaletteList();
 
                     std::ifstream ifs(savePath);
-                    if(ifs.good()) {
+                    if (ifs.good())
+                    {
                         ifs >> mainFractalImage;
                         ifs >> currentPaletteIndex;
                     }
@@ -950,7 +1021,8 @@ int main(int argc, char* argv[]) {
                     int comboindex = 0;
                     for (auto i = fractalAlgorithms.begin(); i != fractalAlgorithms.end(); i++)
                     {
-                        if (i->second == FractalImage::currentAlgorithm) {
+                        if (i->second == FractalImage::currentAlgorithm)
+                        {
                             algorithmComboIndex = comboindex;
                             break;
                         }
@@ -959,7 +1031,8 @@ int main(int argc, char* argv[]) {
                     comboindex = 0;
                     for (auto i = indexMapAlgorithms.begin(); i != indexMapAlgorithms.end(); i++)
                     {
-                        if (i->second == FractalImage::indexMapper) {
+                        if (i->second == FractalImage::indexMapper)
+                        {
                             indexMapperComboIndex = comboindex;
                             break;
                         }
@@ -967,7 +1040,6 @@ int main(int argc, char* argv[]) {
                     }
 
                     mainFractalImage.renderingStatus = NeedUpdate;
-
                 }
 
                 ImGui::EndTabItem();
@@ -975,10 +1047,10 @@ int main(int argc, char* argv[]) {
 
             ImGui::EndTabBar();
         }
-		
+
         ImGui::End();
 
-#pragma endregion 
+#pragma endregion
 
 #pragma region Debug_info_window
 
@@ -993,18 +1065,18 @@ int main(int argc, char* argv[]) {
         ImGui::Text(("Highest reference iter: " + std::to_string(perturbationEndIter)).c_str());
         ImGui::Text(("Reference X: " + std::to_string(((refPointX - mainFractalImage.centerX) / mainFractalImage.scale).convert_to<double>())).c_str());
         ImGui::Text(("Reference Y: " + std::to_string(((refPointY - mainFractalImage.centerY) / mainFractalImage.scale).convert_to<double>())).c_str());
-        
 
         static bool showPixelInfoWindow = false;
 
         ImGui::Checkbox("Show pixel info window", &showPixelInfoWindow);
-        if (ImGui::Checkbox("Show debug colors", &FractalImage::debugColors)) {
+        if (ImGui::Checkbox("Show debug colors", &FractalImage::debugColors))
+        {
             mainFractalImage.refreshVisuals();
         }
 
         ImGui::End();
 
-#pragma endregion 
+#pragma endregion
 
 #pragma region Aiming_Window
 
@@ -1016,25 +1088,27 @@ int main(int argc, char* argv[]) {
         ImVec2 uv1 = ImVec2((float)(mainFractalImage.width / 2 - aimingSquareSize) / mainFractalImage.width, (float)(mainFractalImage.height / 2 + aimingSquareSize) / mainFractalImage.height);
         ImVec2 uv2 = ImVec2((float)(mainFractalImage.width / 2 + aimingSquareSize) / mainFractalImage.width, (float)(mainFractalImage.height / 2 - aimingSquareSize) / mainFractalImage.height);
 
-
         ImGui::Image((ImTextureID)renderTexture, ImVec2(200, 200), uv1, uv2);
 
         ImGui::End();
 
-#pragma endregion 
+#pragma endregion
 
 #pragma region Pixel_information_window
 
-        if (showPixelInfoWindow) {
-            
+        if (showPixelInfoWindow)
+        {
+
             mousePos[1] = mainFractalImage.height - mousePos[1];
 
             int dataArrayIndex;
 
-            if (mainFractalImage.sampleDistance <= -1) {
+            if (mainFractalImage.sampleDistance <= -1)
+            {
                 dataArrayIndex = (mousePos[0] + mousePos[1] * mainFractalImage.width) * mainFractalImage.sampleDistance * mainFractalImage.sampleDistance;
             }
-            else {
+            else
+            {
                 dataArrayIndex = (float)mousePos[0] / mainFractalImage.width * mainFractalImage.scaledWidth;
                 dataArrayIndex += (int)((float)mousePos[1] / mainFractalImage.height * mainFractalImage.scaledHeight) * mainFractalImage.scaledWidth;
             }
@@ -1075,10 +1149,11 @@ int main(int argc, char* argv[]) {
             ImGui::BeginTooltip();
             sdlColorEdit3("##pixelcolor", &pixelColor, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker);
             ImGui::TextUnformatted((
-                "Iterations: " + std::to_string(fd.iterations) + '\n' +
-                std::to_string(fd.iterResult) + " (" + testString + ")" + '\n' +
-                "Smooth value: " + std::to_string(fd.smoothValue) + '\n' +
-                "Shadow value: " + std::to_string(fd.shadowValue) + '\n').c_str());
+                                       "Iterations: " + std::to_string(fd.iterations) + '\n' +
+                                       std::to_string(fd.iterResult) + " (" + testString + ")" + '\n' +
+                                       "Smooth value: " + std::to_string(fd.smoothValue) + '\n' +
+                                       "Shadow value: " + std::to_string(fd.shadowValue) + '\n')
+                                       .c_str());
             ImGui::EndTooltip();
         }
 
@@ -1086,10 +1161,12 @@ int main(int argc, char* argv[]) {
 
 #pragma region Palette_Editor_Window
 
-        if (displayPaletteEditor) {
+        if (displayPaletteEditor)
+        {
             ImGui::Begin("PaletteEditor", 0, 0 | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
 
-            if (ImGui::Button("Load defaults##defaultpalettes")) {
+            if (ImGui::Button("Load defaults##defaultpalettes"))
+            {
                 FractalImage::paletteList = FractalImage::defaultPaletteList;
 
                 paletteComboIndex = 0;
@@ -1104,8 +1181,8 @@ int main(int argc, char* argv[]) {
                 paletteNameBuffer = FractalImage::currentPalette.name.data();
             }
 
-
-            if (ImGui::InputText("##palettenameeditor", paletteNameBuffer, ImGuiInputTextFlags_AutoSelectAll)) {
+            if (ImGui::InputText("##palettenameeditor", (char *)paletteNameBuffer, ImGuiInputTextFlags_AutoSelectAll))
+            {
                 FractalImage::currentPalette.name = paletteNameBuffer;
             }
 
@@ -1117,7 +1194,8 @@ int main(int argc, char* argv[]) {
                 {
                     const bool is_selected = (paletteComboIndex == n);
                     std::string selectableLabel = FractalImage::paletteList[n].name + std::string("##palette") + std::to_string(n);
-                    if (ImGui::Selectable(selectableLabel.c_str(), is_selected)) {
+                    if (ImGui::Selectable(selectableLabel.c_str(), is_selected))
+                    {
                         paletteComboIndex = n;
 
                         FractalImage::currentPalette = FractalImage::paletteList[paletteComboIndex];
@@ -1130,15 +1208,14 @@ int main(int argc, char* argv[]) {
                         paletteNameBuffer = FractalImage::currentPalette.name.data();
                     }
 
-
                     if (is_selected)
                         ImGui::SetItemDefaultFocus();
                 }
                 ImGui::EndCombo();
             }
 
-
-            if (ImGui::Button("New##newpalette")) {
+            if (ImGui::Button("New##newpalette"))
+            {
                 FractalImage::paletteList.push_back(FractalImage::defaultPaletteList[0]);
                 FractalImage::paletteList.back().name = "New Palette";
 
@@ -1156,7 +1233,8 @@ int main(int argc, char* argv[]) {
 
             ImGui::SameLine();
 
-            if (ImGui::Button("Delete##deletepalette") && FractalImage::paletteList.size() > 1) {
+            if (ImGui::Button("Delete##deletepalette") && FractalImage::paletteList.size() > 1)
+            {
                 FractalImage::paletteList.erase(FractalImage::paletteList.begin() + paletteComboIndex);
                 paletteComboIndex = std::min(paletteComboIndex, (int)FractalImage::paletteList.size() - 1);
 
@@ -1172,7 +1250,8 @@ int main(int argc, char* argv[]) {
 
             ImVec2 btn_size = ImVec2(ImGui::GetFrameHeight(), ImGui::GetFrameHeight());
 
-            if (ImGui::Button("-##removecolor", btn_size) && FractalImage::currentPalette.paletteColors.size() > 1) {
+            if (ImGui::Button("-##removecolor", btn_size) && FractalImage::currentPalette.paletteColors.size() > 1)
+            {
                 FractalImage::currentPalette.paletteColors.erase(FractalImage::currentPalette.paletteColors.end() - 1);
                 mainFractalImage.generatePalette();
                 mainFractalImage.refreshVisuals();
@@ -1184,27 +1263,31 @@ int main(int argc, char* argv[]) {
 
                 char temp[32];
                 snprintf(temp, sizeof(temp), "color##palettecolor%d", i);
-                if (sdlColorEdit3(temp, &FractalImage::currentPalette.paletteColors[i], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_InputRGB)) {
+                if (sdlColorEdit3(temp, &FractalImage::currentPalette.paletteColors[i], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_InputRGB))
+                {
                     mainFractalImage.generatePalette();
                     mainFractalImage.refreshVisuals();
                 }
             }
 
             ImGui::SameLine();
-            if (ImGui::Button("+##addcolor", btn_size)) {
+            if (ImGui::Button("+##addcolor", btn_size))
+            {
                 FractalImage::currentPalette.paletteColors.push_back({0, 0, 0});
                 mainFractalImage.generatePalette();
                 mainFractalImage.refreshVisuals();
             }
 
-            if (ImGui::Button("Save")) {
+            if (ImGui::Button("Save"))
+            {
                 FractalImage::paletteList[paletteComboIndex] = FractalImage::currentPalette;
                 displayPaletteEditor = false;
             }
 
             ImGui::SameLine();
 
-            if (ImGui::Button("Cancel")) {
+            if (ImGui::Button("Cancel"))
+            {
                 FractalImage::currentPalette = FractalImage::paletteList[paletteComboIndex];
                 currentPaletteIndex = paletteComboIndex;
 
@@ -1221,44 +1304,40 @@ int main(int argc, char* argv[]) {
 
 #pragma endregion
 
-/*
-#pragma region Texture windows
+        /*
+        #pragma region Texture windows
 
-        int texWindowSize = 144;
+                int texWindowSize = 144;
 
-        ImGui::Begin("FracTex", 0, 0 | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+                ImGui::Begin("FracTex", 0, 0 | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
 
-        uv1 = ImVec2(0, 1);
-        uv2 = ImVec2(1, 0);
+                uv1 = ImVec2(0, 1);
+                uv2 = ImVec2(1, 0);
 
 
-        ImGui::Image((ImTextureID)fractalTexture, ImVec2(texWindowSize * mainFractalImage.aspectRatio, texWindowSize), uv1, uv2);
+                ImGui::Image((ImTextureID)fractalTexture, ImVec2(texWindowSize * mainFractalImage.aspectRatio, texWindowSize), uv1, uv2);
 
-        ImGui::End();
+                ImGui::End();
 
-        ImGui::Begin("BackTex", 0, 0 | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+                ImGui::Begin("BackTex", 0, 0 | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
 
-        ImGui::Image((ImTextureID)backgroundTexture, ImVec2(texWindowSize * mainFractalImage.aspectRatio, texWindowSize), uv1, uv2);
+                ImGui::Image((ImTextureID)backgroundTexture, ImVec2(texWindowSize * mainFractalImage.aspectRatio, texWindowSize), uv1, uv2);
 
-        ImGui::End();
-        ImGui::Begin("RendTex", 0, 0 | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+                ImGui::End();
+                ImGui::Begin("RendTex", 0, 0 | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
 
-        ImGui::Image((ImTextureID)renderTexture, ImVec2(texWindowSize * mainFractalImage.aspectRatio, texWindowSize), uv1, uv2);
-        
-        ImGui::End();
+                ImGui::Image((ImTextureID)renderTexture, ImVec2(texWindowSize * mainFractalImage.aspectRatio, texWindowSize), uv1, uv2);
+
+                ImGui::End();
+
+        #pragma endregion
+        */
 
 #pragma endregion
-*/
-
-#pragma endregion
-
-
-        
 
         glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
         glClearColor(clear_color.x, clear_color.y, clear_color.z, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        
 
         glUseProgram(renderShaderProgram);
 
@@ -1269,8 +1348,8 @@ int main(int argc, char* argv[]) {
 
         glUniformMatrix4fv(glGetUniformLocation(renderShaderProgram, "transform"), 1, 0, glm::value_ptr(fullTransform));
 
-
-        if (mainFractalImage.renderingStatus != Ready) {
+        if (mainFractalImage.renderingStatus != Ready)
+        {
             glBindTexture(GL_TEXTURE_2D, backgroundTexture);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         }
@@ -1280,12 +1359,14 @@ int main(int argc, char* argv[]) {
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // We're moving. Let's cancel the current rendering process.
-        if (isAnyKeyPressed) {
+        if (isAnyKeyPressed)
+        {
             mainFractalImage.cancelUpdate();
         }
 
         // We've settled on a location to start rendering. Let's start the rendering process.
-        if ((mainFractalImage.renderingStatus == NeedUpdate || mainFractalImage.renderingStatus == Empty) && !isAnyKeyPressed) {
+        if ((mainFractalImage.renderingStatus == NeedUpdate || mainFractalImage.renderingStatus == Empty) && !isAnyKeyPressed)
+        {
 
             // Copy the window content to backgroundTexture
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, backgroundTexture, 0);
@@ -1294,17 +1375,16 @@ int main(int argc, char* argv[]) {
 
             glBindTexture(GL_TEXTURE_2D, renderTexture);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        
+
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderTexture, 0);
 
             // Reset the fractalImage transform
             translationVector = glm::vec3(0, 0, 0);
             matrixScale = 1.0f;
-        
+
             // Clear the contents of the main fractal image and then start rendering once again
             mainFractalImage.pixelArray.assign(mainFractalImage.pixelArray.size(), 0);
             mainFractalImage.updatePixels();
-
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -1320,14 +1400,10 @@ int main(int argc, char* argv[]) {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        
-
         // Update and Render additional Platform Windows
-        // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
-        //  For this specific demo app we could also call SDL_GL_MakeCurrent(window, gl_context) directly)
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
-            SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
+            SDL_Window *backup_current_window = SDL_GL_GetCurrentWindow();
             SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault();
@@ -1336,7 +1412,7 @@ int main(int argc, char* argv[]) {
 
         SDL_GL_SwapWindow(window);
     }
-    
+
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL2_Shutdown();

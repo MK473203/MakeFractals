@@ -1,0 +1,1 @@
+target_include_directories(MakeFractals PRIVATE ${CMAKE_CURRENT_LIST_DIR} ${CMAKE_CURRENT_LIST_DIR}/SDL2)
